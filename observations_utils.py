@@ -112,7 +112,7 @@ def merge(ds, binary_files, times_data, channels_data, window_data, N_bin, sp_to
         weights = full_weights[last_index: new_index, :]
 
         # and equal to 0 to the RFI-affected single pulses
-#        weights = mask_RFI(data, weights, window_data)       # Account for individual RFIs and null single pulses
+        weights = mask_RFI(data, weights, window_data)       # Account for individual RFIs and null single pulses
         weights = zap_minmax(data, weights, offpulsewindow)  # Zap noisy frequency channels
         #        chisq_filter(ar, template_file=template_file)   # Filter RFIs by the chisq from fitting the SPs to the template
 #        weights = opw_peaks(data, weights, window_data)                # Filter single pulses with sharp peaks in the off-window region
