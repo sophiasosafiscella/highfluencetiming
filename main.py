@@ -11,6 +11,7 @@ from observations_utils import to_binary, create_ds, merge
 import sp_utils
 import classification
 from timing_utils import time_single_pulses, weighted_moments
+from RFI_utils import remove_RFIs
 import os
 from IPython.display import display
 
@@ -23,7 +24,7 @@ if __name__ == '__main__':
     #   0) Get the file names
     band: str = "820_band"
     classifier: str = "Kmeans"        # Options: "Kmeans", "MeanShift", or "AffinityPropagation"
-    results_dir: str = "./results/" + band + "_normalized_weights/"  # Directory with the results
+    results_dir: str = "./results/" + band + "/"  # Directory with the results
     pulses_dir: str = "./data/" + band + "/"
 
     if band == "L_band":
@@ -47,6 +48,7 @@ if __name__ == '__main__':
     windows_data_file: str = results_dir + "window_data.npy"
     sp_total_file: str = results_dir + "n_sp.npy"
     rms_data_file: str = results_dir + "rms.npy"
+    weights_file: str = results_dir + "weights.npy"
 
     k_values = np.arange(1, 18, 1, dtype=int)  # Number of clusters for the classifier
     results = pd.DataFrame(index=k_values, columns=['TOA', 'sigma_TOA'])
@@ -104,6 +106,15 @@ if __name__ == '__main__':
 
     binary_files = glob.glob(binary_out_dir + "GUPPI*npy")
 
+    #   7) Flags RFIs and create the weights
+    if len(glob.glob(weights_file)) == 0:
+        print("Removing RFIs")
+        weights = remove_RFIs(binary_files, rms_array)
+        np.save(weights_file)
+    else:
+        weights = np.load(weights_file)
+    sys.exit()
+
     # Inject different levels of noise
     for noise_factor in [0.0]:
 
@@ -113,7 +124,7 @@ if __name__ == '__main__':
         features_file: str = results_dir_2 + "features.pkl"
         results_file: str = results_dir_2 + "results.pkl"
 
-        #   6) merge and normalize the data
+        #   8) merge and normalize the data
         if len(glob.glob(merged_normalized_file)) == 0:
             print("Merging and normalizing the data...")
             normalized_data, unnormalized_data = merge(ds=ds, binary_files=binary_files, times_data=times_data,
@@ -151,7 +162,7 @@ if __name__ == '__main__':
         # Calculate the TOA and TOA error for the whole observation and save to the first row of the results dataframe
         results.loc[1, 'TOA':'sigma_TOA'] = np.asarray(ar.fitPulses(template_data, nums=[1, 3]) * bin_to_musec)
 
-        #   7) Create the features for each single pulse
+        #   8) Create the features for each single pulse
         if len(glob.glob(features_file)) == 0:
             print("Features not found. I'll create them...")
             org_features = sp_utils.get_params(merged_normalized_file, windows_data, results_dir=results_dir_2, plot=False)
