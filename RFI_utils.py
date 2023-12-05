@@ -149,7 +149,7 @@ def clfd(file, weights):
 
     # Compute chosen profile features.
     # The output is a pandas DataFrame with feature names as columns, and (subint, channel) tuples as rows.
-    features = featurize(cube, features=('std', 'ptp', 'lfamp'))
+    features = featurize(cube, features=('std', 'lfamp'))
 
     # From there, compute profile mask, optionally excluding some known bad channels from the analysis.
     stats, mask = profile_mask(features, q=2.0)
