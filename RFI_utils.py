@@ -1,3 +1,4 @@
+import matplotlib.pyplot as plt
 import numpy as np
 import pypulse as pyp
 from pypulse.utils import xrange
@@ -157,6 +158,12 @@ def clfd(file, weights):
         for j in xrange(np.shape(mask)[1]):             # frequency channel index
             if mask[i, j]:
                 weights[i, j] = 0.0
+
+                plt.close()
+                plt.title("Subintegration " + str(i) + " Channel " + str(j))
+                plt.plot(pyp.Archive(file).getData())
+                plt.savefig("./clfd/" + str(i) + "_" + str(j) + ".png")
+                plt.show()
 
     return weights
 
