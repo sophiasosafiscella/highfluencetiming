@@ -154,6 +154,8 @@ def clfd(file, weights):
     # From there, compute profile mask, optionally excluding some known bad channels from the analysis.
     stats, mask = profile_mask(features, q=2.0)
 
+    data = pyp.Archive(file).getData()
+
     for i in xrange(np.shape(mask)[0]):               # subintegration indexes
         for j in xrange(np.shape(mask)[1]):             # frequency channel index
             if mask[i, j]:
@@ -161,7 +163,7 @@ def clfd(file, weights):
 
                 plt.close()
                 plt.title("Subintegration " + str(i) + " Channel " + str(j))
-                plt.plot(pyp.Archive(file).getData()[i, j, :])
+                plt.plot(data[i, j, :])
                 plt.savefig("./clfd/" + str(i) + "_" + str(j) + ".png")
                 plt.show()
 
