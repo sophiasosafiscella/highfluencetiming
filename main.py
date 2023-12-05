@@ -109,7 +109,7 @@ if __name__ == '__main__':
     #   7) Flags RFIs and create the weights
     if len(glob.glob(weights_file)) == 0:
         print("Removing RFIs")
-        weights = remove_RFIs(binary_files, rms_array)
+        weights = remove_RFIs(files, binary_files, rms_array, windows_data)
         np.save(weights_file)
     else:
         weights = np.load(weights_file)

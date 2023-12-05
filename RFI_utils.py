@@ -3,7 +3,9 @@ import pypulse as pyp
 from pypulse.utils import xrange
 from sklearn.preprocessing import normalize
 import clfd
+from clfd import DataCube, featurize, profile_mask
 from tqdm import tqdm
+import sys
 
 def zap(obs, val=0.0, t=None, f=None):
     '''
@@ -142,14 +144,14 @@ def opw_peaks(data, weights, window_data, threshold=0.75):
 def clfd(file, weights):
 
     # Load folded archive produced with PSRCHIVE
-    cube = clfd.DataCube.from_psrchive(file)
+    cube = DataCube.from_psrchive(file)
 
     # Compute chosen profile features.
     # The output is a pandas DataFrame with feature names as columns, and (subint, channel) tuples as rows.
-    features = clfd.featurize(cube, features=('std', 'ptp', 'lfamp'))
+    features = featurize(cube, features=('std', 'ptp', 'lfamp'))
 
     # From there, compute profile mask, optionally excluding some known bad channels from the analysis.
-    stats, mask = clfd.profile_mask(features, q=2.0)
+    stats, mask = profile_mask(features, q=2.0)
 
     for i in xrange(np.shape(mask)[0]):               # subintegration indexes
         for j in xrange(np.shape(mask)[1]):             # frequency channel index
@@ -159,7 +161,7 @@ def clfd(file, weights):
     return weights
 
 
-def remove_RFIs(binary_files, noise_rms, window_data):
+def remove_RFIs(files, binary_files, noise_rms, window_data):
 
     weights = normalize(np.power(noise_rms, -2), axis=0)
 
@@ -168,15 +170,15 @@ def remove_RFIs(binary_files, noise_rms, window_data):
 
     # Iterate over the files
     last_index: int = 0
-    for file in tqdm(binary_files):
+    for n, binary_file in tqdm(enumerate(binary_files)):
 
-        data = np.load(file)
+        data = np.load(binary_file)
         Nsubint, Nchan, Nbin = np.shape(data)
         new_index = Nsubint + last_index
 
-        weights[last_index: new_index, :] = clfd(file[:-4] + ".ar", weights)
-        weights[last_index: new_index, :] = mask_RFI(data, weights, window_data)       # Account for individual RFIs and null single pulses
-        weights[last_index: new_index, :] = zap_minmax(data, weights, offpulsewindow)  # Zap noisy frequency channels
+        weights[last_index: new_index, :] = clfd(files[n], weights[last_index: new_index, :])
+        weights[last_index: new_index, :] = mask_RFI(data, weights[last_index: new_index, :], window_data)       # Account for individual RFIs and null single pulses
+        weights[last_index: new_index, :] = zap_minmax(data, weights[last_index: new_index, :], offpulsewindow)  # Zap noisy frequency channels
 #        chisq_filter(ar, template_file=template_file)   # Filter RFIs by the chisq from fitting the SPs to the template
 #        weights = opw_peaks(data, weights, window_data)                # Filter single pulses with sharp peaks in the off-window region
 
