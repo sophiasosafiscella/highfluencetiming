@@ -90,7 +90,7 @@ def mask_RFI(data, weights, window_data, factor=8.0):
     complete_mask = np.logical_or(RFI_mask, null_mask)
 
     # Assign a weight equal to 0 to all the RFI-affected and null single pulses
-    for i in xrange(Nsubint):              # subintegration indexes
+    for i in xrange(Nsubint):               # subintegration indexes
         for j in xrange(Nchan):             # frequency channel index
             if complete_mask[i, j]:
                 weights[i, j] = 0.0
@@ -142,7 +142,7 @@ def opw_peaks(data, weights, window_data, threshold=0.75):
 
     return weights
 
-def clfd(file, weights):
+def clfd(file, weights, plot=False):
 
     # Load folded archive produced with PSRCHIVE
     cube = DataCube.from_psrchive(file)
@@ -154,26 +154,33 @@ def clfd(file, weights):
     # From there, compute profile mask, optionally excluding some known bad channels from the analysis.
     stats, mask = profile_mask(features, q=2.0)
 
-    data = pyp.Archive(file).getData()
+    if plot:
 
-    for i in xrange(np.shape(mask)[0]):               # subintegration indexes
+        data = pyp.Archive(file).getData()
+        for i in xrange(np.shape(mask)[0]):  # subintegration indexes
+            for j in xrange(np.shape(mask)[1]):  # frequency channel index
+                if mask[i, j]:
+
+                    plt.close()
+                    plt.title("Subintegration " + str(i) + " Channel " + str(j))
+                    plt.plot(data[i, j, :])
+                    plt.savefig("./clfd/" + str(i) + "_" + str(j) + ".png")
+                    plt.show()
+
+    for i in xrange(np.shape(mask)[0]):                 # subintegration indexes
         for j in xrange(np.shape(mask)[1]):             # frequency channel index
             if mask[i, j]:
                 weights[i, j] = 0.0
-
-                plt.close()
-                plt.title("Subintegration " + str(i) + " Channel " + str(j))
-                plt.plot(data[i, j, :])
-                plt.savefig("./clfd/" + str(i) + "_" + str(j) + ".png")
-                plt.show()
 
     return weights
 
 
 def remove_RFIs(files, binary_files, noise_rms, window_data):
 
+    # Assign a weight equal to 1/sigma2 to each single pulse
     weights = normalize(np.power(noise_rms, -2), axis=0)
 
+    # Get the off-pulse window
     offpulsewindow = np.linspace(window_data[0, 0], window_data[0, 1],
                                  num=window_data[0, 1] - window_data[0, 0] + 1).astype(int)
 
@@ -185,7 +192,8 @@ def remove_RFIs(files, binary_files, noise_rms, window_data):
         Nsubint, Nchan, Nbin = np.shape(data)
         new_index = Nsubint + last_index
 
-        weights[last_index: new_index, :] = clfd(files[n], weights[last_index: new_index, :])
+#       Assign a weight equal to 0 to the RFI-affected single pulses
+#        weights[last_index: new_index, :] = clfd(files[n], weights[last_index: new_index, :])
         weights[last_index: new_index, :] = mask_RFI(data, weights[last_index: new_index, :], window_data)       # Account for individual RFIs and null single pulses
         weights[last_index: new_index, :] = zap_minmax(data, weights[last_index: new_index, :], offpulsewindow)  # Zap noisy frequency channels
 #        chisq_filter(ar, template_file=template_file)   # Filter RFIs by the chisq from fitting the SPs to the template

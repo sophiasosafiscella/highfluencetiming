@@ -80,21 +80,15 @@ def to_binary(files, out_dir, sp_total, bandpass=[0, None], shift: int = -220):
 
     return total_times, channels
 
-def merge(ds, binary_files, times_data, channels_data, window_data, N_bin, sp_total, noise_rms, noise_factor):
+def merge(ds, binary_files, times_data, channels_data, full_weights, N_bin, sp_total, noise_rms, noise_factor):
 
     unnormalized_data = np.empty((sp_total, N_bin))
     normalized_data = np.empty((sp_total, N_bin))  # rows: single pulses, columns: phase bins
 
-    full_weights = normalize(np.power(noise_rms, -2), axis=0)
-
     # Parameters for the dynamic spectrum
-    ds_channels = np.asarray(list(ds.index))  # Upper edges of the frequency bins
+    ds_channels = np.asarray(list(ds.index))           # Upper edges of the frequency bins
     ds_times = np.asarray(ds.columns.values.tolist())  # Upper edges of the time bins
-    ds_arr = ds.to_numpy()  # Dynamic spectrum data
-
-    # get the off-pulse window
-    offpulsewindow = np.linspace(window_data[0, 0], window_data[0, 1],
-                                 num=window_data[0, 1] - window_data[0, 0] + 1).astype(int)
+    ds_arr = ds.to_numpy()                             # Dynamic spectrum data
 
     # Iterate over the files
     last_index: int = 0
@@ -104,15 +98,7 @@ def merge(ds, binary_files, times_data, channels_data, window_data, N_bin, sp_to
         Nsubint, Nchan, Nbin = np.shape(data)
         new_index = Nsubint + last_index
 
-        # Assign a weight equal to 1/sigma2 to each single pulse
-#        weights = np.full(np.shape(data), 1.0)
         weights = full_weights[last_index: new_index, :]
-
-        # and equal to 0 to the RFI-affected single pulses
-        weights = mask_RFI(data, weights, window_data)       # Account for individual RFIs and null single pulses
-        weights = zap_minmax(data, weights, offpulsewindow)  # Zap noisy frequency channels
-#        chisq_filter(ar, template_file=template_file)   # Filter RFIs by the chisq from fitting the SPs to the template
-#        weights = opw_peaks(data, weights, window_data)                # Filter single pulses with sharp peaks in the off-window region
 
         # Iterate over the single pulses
         for i, t in enumerate(times_data[last_index:new_index]):
