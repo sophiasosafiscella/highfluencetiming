@@ -8,7 +8,7 @@ def zap(obs, val=0.0, t=None, f=None):
     '''
     obs.setWeights(val=val, t=t, f=f)
 
-def zap_minmax(data, weights, opw, windowsize=20, threshold=3.0):
+def zap_minmax(data, weights, opw, windowsize=20, threshold=4.0):
     '''
     Run NANOGrav algorithm, median zapping. Run per subintegration
     windowsize = 20 frequency bins long
@@ -61,12 +61,12 @@ def zap_minmax(data, weights, opw, windowsize=20, threshold=3.0):
     return weights
 
 
-def mask_RFI(data, weights, window_data, factor=6.0):
+def mask_RFI(data, weights, window_data, factor=8.0):
 
     Nsubint, Nchan, Nbin = np.shape(data)
 
     # Create a threshold that is factor times the maximum value inside the main peak window
-    threshold = factor * np.expand_dims(np.amax(data[:, :, window_data[1, 0]:window_data[1, 1]], axis=2), axis=2)  # Maximum inside each pulse window
+    threshold = factor * np.expand_dims(np.abs(np.amax(data[:, :, window_data[1, 0]:window_data[1, 1]], axis=2)), axis=2)  # Maximum inside each pulse window
 
     # 0:window_data[1,0], window_data[1,0]  means "from the beginning, to the left edge of the main peak window"
     # window_data[1,0]:np.shape(data)[1]]   means "from the right edge of the main peak window, to the end

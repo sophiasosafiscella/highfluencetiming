@@ -23,7 +23,7 @@ if __name__ == '__main__':
     #   0) Get the file names
     band: str = "820_band"
     classifier: str = "Kmeans"        # Options: "Kmeans", "MeanShift", or "AffinityPropagation"
-    results_dir: str = "./results/" + band + "/"  # Directory with the results
+    results_dir: str = "./results/" + band + "_normalized_weights/"  # Directory with the results
     pulses_dir: str = "./data/" + band + "/"
 
     if band == "L_band":
@@ -107,7 +107,7 @@ if __name__ == '__main__':
     # Inject different levels of noise
     for noise_factor in [0.0]:
 
-        results_dir_2 = "./results/" + band + "/" + str(noise_factor) + "_sigma/"
+        results_dir_2 = results_dir + str(noise_factor) + "_sigma/"
         merged_file: str = results_dir_2 + "unnormalized_data.pkl"
         merged_normalized_file: str = results_dir_2 + "normalized_data.pkl"
         features_file: str = results_dir_2 + "features.pkl"
