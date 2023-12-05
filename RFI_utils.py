@@ -161,7 +161,7 @@ def clfd(file, weights):
 
                 plt.close()
                 plt.title("Subintegration " + str(i) + " Channel " + str(j))
-                plt.plot(pyp.Archive(file).getData())
+                plt.plot(pyp.Archive(file).getData()[i, j, :])
                 plt.savefig("./clfd/" + str(i) + "_" + str(j) + ".png")
                 plt.show()
 
