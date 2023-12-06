@@ -24,7 +24,7 @@ if __name__ == '__main__':
     #   0) Get the file names
     band: str = "820_band"
     classifier: str = "Kmeans"        # Options: "Kmeans", "MeanShift", or "AffinityPropagation"
-    results_dir: str = "./results/" + band + "_full_bw/"  # Directory with the results
+    results_dir: str = "./results/" + band + "_restricted_bw/"  # Directory with the results
     pulses_dir: str = "./data/" + band + "/"
 
     if band == "L_band":
@@ -40,6 +40,7 @@ if __name__ == '__main__':
     time_sp: bool = False
 
     binary_out_dir: str = pulses_dir + "binary/"
+    bandpass = [16, 8]
     times_file: str = binary_out_dir + "times_data.npy"
     channels_file: str = binary_out_dir + "channels_data.npy"
 
@@ -97,7 +98,7 @@ if __name__ == '__main__':
     #   6) Convert the observations to binary
     if len(glob.glob(binary_out_dir + "GUPPI*npy")) < len(files):
         print("Converting the observation to binary files...")
-        times_data, channels_data = to_binary(files, binary_out_dir, sp_total)
+        times_data, channels_data = to_binary(files, binary_out_dir, sp_total, bandpass=bandpass)
         np.save(times_file, times_data)
         np.save(channels_file, channels_data)
     else:
