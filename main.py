@@ -40,7 +40,7 @@ if __name__ == '__main__':
     time_sp: bool = False
 
     binary_out_dir: str = pulses_dir + "binary/"
-    bandpass = [16, 8]
+    bandpass = [16, 8]                             # How many channels we're removing from the upper and lower edges
     times_file: str = binary_out_dir + "times_data.npy"
     channels_file: str = binary_out_dir + "channels_data.npy"
 

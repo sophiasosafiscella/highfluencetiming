@@ -176,7 +176,7 @@ def clfd(file, weights, plot=False):
 
 
 def remove_RFIs(files, binary_files, noise_rms, window_data):
-
+    
     # Assign a weight equal to 1/sigma2 to each single pulse
     weights = normalize(np.power(noise_rms, -2), axis=0)
 
