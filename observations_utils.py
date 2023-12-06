@@ -82,7 +82,6 @@ def to_binary(files, out_dir, sp_total, bandpass=None, shift: int = -220):
         # Sometimes we don't want to use the channels at the edges. In that case we restrict the bandpass.
         np.save(out_dir + file[-35:-3] + ".npy", rolled[:, bandpass[0]: bandpass[1], :])
         print(np.shape(rolled[:, bandpass[0]: bandpass[1], :]))
-        sys.exit()
 
         time += ar.getDuration()
         last_index = new_index
