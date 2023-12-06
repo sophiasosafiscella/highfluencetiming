@@ -48,17 +48,21 @@ def create_ds(template, low_res_file, band):
     return ds
 
 
-def to_binary(files, out_dir, sp_total, bandpass=[0, 0], shift: int = -220):
+def to_binary(files, out_dir, sp_total, bandpass=None, shift: int = -220):
+
+    # If a pair of values was provided to restrict the bandwidth, then multiply the second value by -1
+    # in order to remove that many channels at the lower end of the bandwidth
+    if bandpass is None:
+        bandpass = [0, None]
+    else:
+        bandpass[1] *= -1
 
     total_times = np.zeros(sp_total)
     time: float = 0.0
     last_index: int = 0
 
     channels = pyp.Archive(files[0], prepare=False, center_pulse=False, baseline_removal=False,
-                         lowmem=True, verbose=False).getAxis(flag="F", edges=True)
-    n_channels = len(channels)
-    print(n_channels)
-    sys.exit()
+                         lowmem=True, verbose=False).getAxis(flag="F", edges=True)[bandpass[0]: bandpass[1]]
 
     for file in tqdm(files):
         ar = pyp.Archive(file, prepare=False, center_pulse=False, baseline_removal=False,
@@ -76,7 +80,9 @@ def to_binary(files, out_dir, sp_total, bandpass=[0, 0], shift: int = -220):
         rolled -= np.average(np.average(np.average(rolled, axis=1), axis=0)[0:100])   # Subtract the baseline
 
         # Sometimes we don't want to use the channels at the edges. In that case we restrict the bandpass.
-        np.save(out_dir + file[-35:-3] + ".npy", rolled[:, bandpass[0]:  + 1, :])
+        np.save(out_dir + file[-35:-3] + ".npy", rolled[:, bandpass[0]: bandpass[1], :])
+        print(np.shape(rolled[:, bandpass[0]: bandpass[1], :]))
+        sys.exit()
 
         time += ar.getDuration()
         last_index = new_index
