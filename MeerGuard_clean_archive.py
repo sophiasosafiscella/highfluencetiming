@@ -12,7 +12,7 @@ import os
 
 def apply_surgical_cleaner(ar, tmp, cthresh=7.0, sthresh=7.0, plot=False):
     print("Applying the surgical cleaner")
-    print("\t channel threshold = {0}".format(cthresh))
+    print("\t channTel threshold = {0}".format(cthresh))
     print("\t  subint threshold = {0}".format(sthresh))
 
     surgical_cleaner = cleaners.load_cleaner('surgical')
