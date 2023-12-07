@@ -69,7 +69,7 @@ def calculate_rms(files, n_sp, n_chan):
         for i in range(ar.getNsubint()):
 
             # Iterate over the frequency channels
-            for j in range(ar.getNchan()):
+            for j in range(n_chan):
 
                 sp = pyp.SinglePulse(data[i, j, :], opw=arr)
                 rms_values[n, j] = sp.getOffpulseNoise()

@@ -75,7 +75,7 @@ if __name__ == '__main__':
     if len(glob.glob(sp_total_file)) == 0:
         print("Counting single pulses...")
         sp_total, N_bin = sp_utils.count_sp(files)
-        np.save(sp_total_file, np.asarray(sp_total, N_bin))
+        np.save(sp_total_file, np.asarray([sp_total, N_bin]))
     else:
         sp_total, N_bin = np.load(sp_total_file)
 
