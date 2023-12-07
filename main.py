@@ -7,7 +7,7 @@ import glob
 import sys
 import pypulse as pyp
 import matplotlib.pyplot as plt
-from observations_utils import to_binary, create_ds, merge
+from observations_utils import to_binary_and_calculate_rms, create_ds, merge
 import sp_utils
 import classification
 from timing_utils import time_single_pulses, weighted_moments
@@ -79,26 +79,19 @@ if __name__ == '__main__':
     else:
         sp_total, N_bin = np.load(sp_total_file)
 
-    #   4) Convert the observations to binary
+    #   4) Convert the observations to binary and calculate the off-pulse noise RMS
     if len(glob.glob(binary_out_dir + "GUPPI*npy")) < len(files):
         print("Converting the observation to binary files...")
-        times_data, channels_data = to_binary(files, binary_out_dir, sp_total, bandpass=bandpass)
+        times_data, channels_data, rms_array = to_binary_and_calculate_rms(files, binary_out_dir, sp_total, bandpass)
         np.save(times_file, times_data)
         np.save(channels_file, channels_data)
+        np.save(rms_data_file, rms_array)
     else:
         times_data = np.load(times_file)
         channels_data = np.load(channels_file)
-
-    N_chan = len(channels_data)
-    binary_files = glob.glob(binary_out_dir + "GUPPI*npy")
-
-    #   5) Calculate the off-pulse noise RMS
-    if len(glob.glob(rms_data_file)) == 0:
-        print("Calculating the off-pulse noise RMS")
-        rms_array = sp_utils.calculate_rms(files=files, n_sp=sp_total, n_chan=N_chan)
-        np.save(rms_data_file, rms_array)
-    else:
         rms_array = np.load(rms_data_file)
+
+    binary_files = glob.glob(binary_out_dir + "GUPPI*npy")
 
     #   6) Flags RFIs and create the weights
     if len(glob.glob(weights_file)) == 0:

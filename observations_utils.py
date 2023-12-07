@@ -87,6 +87,54 @@ def to_binary(files, out_dir, sp_total, bandpass=None, shift: int = -220):
 
     return total_times, channels
 
+def to_binary_and_calculate_rms(files, out_dir, n_sp, bandpass=None, shift: int = -220):
+
+    # If a pair of values was provided to restrict the bandwidth, then multiply the second value by -1
+    # in order to remove that many channels at the lower end of the bandwidth
+    if bandpass is None:
+        bandpass = [0, None]
+    else:
+        bandpass[1] *= -1
+
+    total_times = np.zeros(n_sp)
+    time: float = 0.0
+    last_index: int = 0
+
+    channels = pyp.Archive(files[0], prepare=False, center_pulse=False, baseline_removal=False,
+                         lowmem=True, verbose=False).getAxis(flag="F", edges=True)[bandpass[0]: bandpass[1]]
+
+    # Create an array to store the RMS values
+    n_chan = len(channels)
+    opw = np.arange(0, 100)
+    rms_values = np.full((n_sp, n_chan), np.nan)
+
+    # Iterate over the files
+    for file in tqdm(files):
+        ar = pyp.Archive(file, prepare=False, center_pulse=False, baseline_removal=False,
+                         lowmem=True, verbose=False)
+
+        ar.pscrunch()
+        ar.dedisperse()
+
+        new_index = ar.getNsubint() + last_index
+
+        data_times = ar.getTimes() + time  # We add the time at the end of the previous observation
+        total_times[last_index:new_index] = data_times
+
+        rolled = np.roll(ar.getData(), shift, axis=2)
+        rolled -= np.average(np.average(np.average(rolled, axis=1), axis=0)[opw])   # Subtract the baseline
+
+        # Sometimes we don't want to use the channels at the edges. In that case we restrict the bandpass.
+        np.save(out_dir + file[-35:-3] + ".npy", rolled[:, bandpass[0]: bandpass[1], :])
+
+        # Calculate the off-pulse RMS noise
+        rms_values[last_index:new_index, :] = np.std(rolled[:, bandpass[0]: bandpass[1], opw])
+
+        time += ar.getDuration()
+        last_index = new_index
+
+    return total_times, channels, rms_values
+
 def merge(ds, binary_files, times_data, channels_data, full_weights, N_bin, sp_total, noise_rms, noise_factor):
 
     unnormalized_data = np.empty((sp_total, N_bin))
