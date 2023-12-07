@@ -103,10 +103,9 @@ def to_binary_and_calculate_rms(files, out_dir, n_sp, bandpass=None, shift: int 
     channels = pyp.Archive(files[0], prepare=False, center_pulse=False, baseline_removal=False,
                          lowmem=True, verbose=False).getAxis(flag="F", edges=True)[bandpass[0]: bandpass[1]]
 
-    # Create an array to store the RMS values
-    n_chan = len(channels)
+    # Create an array to store the RMS values\
     opw = np.arange(0, 100)
-    rms_values = np.full((n_sp, n_chan), np.nan)
+    rms_values = np.full((n_sp, len(channels)), np.nan)
 
     # Iterate over the files
     for file in tqdm(files):
