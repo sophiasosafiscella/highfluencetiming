@@ -190,6 +190,7 @@ def remove_RFIs(files, binary_files, noise_rms, window_data):
 
         data = np.load(binary_file)
         Nsubint, Nchan, Nbin = np.shape(data)
+
         new_index = Nsubint + last_index
 
 #       Assign a weight equal to 0 to the RFI-affected single pulses

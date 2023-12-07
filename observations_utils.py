@@ -81,7 +81,6 @@ def to_binary(files, out_dir, sp_total, bandpass=None, shift: int = -220):
 
         # Sometimes we don't want to use the channels at the edges. In that case we restrict the bandpass.
         np.save(out_dir + file[-35:-3] + ".npy", rolled[:, bandpass[0]: bandpass[1], :])
-        print(np.shape(rolled[:, bandpass[0]: bandpass[1], :]))
 
         time += ar.getDuration()
         last_index = new_index
@@ -103,8 +102,6 @@ def merge(ds, binary_files, times_data, channels_data, full_weights, N_bin, sp_t
     for file in tqdm(binary_files):
 
         data = np.load(file)
-        print(np.shape(data))
-        sys.exit()
         Nsubint, Nchan, Nbin = np.shape(data)
         new_index = Nsubint + last_index
 
