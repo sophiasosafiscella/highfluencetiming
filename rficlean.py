@@ -1,7 +1,5 @@
-import numpy
 import glob
 import subprocess
-import os
 from tqdm import tqdm
 
 F0 : float = 62.2958887973344346

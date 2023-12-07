@@ -44,7 +44,6 @@ if __name__ == '__main__':
     times_file: str = binary_out_dir + "times_data.npy"
     channels_file: str = binary_out_dir + "channels_data.npy"
 
-    prep_info_file: str = results_dir + "prep_info.npy"
     ds_data_file: str = results_dir + "dynamic_spectrum.pkl"
     windows_data_file: str = results_dir + "window_data.npy"
     sp_total_file: str = results_dir + "n_sp.npy"
@@ -54,14 +53,7 @@ if __name__ == '__main__':
     k_values = np.arange(1, 18, 1, dtype=int)  # Number of clusters for the classifier
     results = pd.DataFrame(index=k_values, columns=['TOA', 'sigma_TOA'])
 
-    #   1) Get the number of subintegrations, chanels, and bins
-    if len(glob.glob(prep_info_file)) == 0:
-        N_subint, N_chan, N_bin = np.shape(pyp.Archive(files[0], lowmem=True, verbose=False).getData())
-        np.save(prep_info_file, np.asarray([N_subint, N_chan, N_bin]))
-    else:
-        N_subint, N_chan, N_bin = np.load(prep_info_file)
-
-    #   2) Create the dynamic spectrum
+    #   1) Create the dynamic spectrum
     if len(glob.glob(ds_data_file)) == 0:
         print("Creating the dynamic spectrum...")
         ds = create_ds(template_file, low_res_file, band)
@@ -69,7 +61,7 @@ if __name__ == '__main__':
     else:
         ds = pd.read_pickle(ds_data_file)
 
-    #   3) Create the pulse windows
+    #   2) Create the pulse windows
     if len(glob.glob(windows_data_file)) == 0:
         print("Creating the pulse windows...")
         windows_data = sp_utils.find_windows(template_file=template_file, pulses_directory=pulses_dir,
@@ -79,23 +71,15 @@ if __name__ == '__main__':
     else:
         windows_data = np.load(glob.glob(windows_data_file)[0])
 
-    #   4) Count the number of single pulses
+    #   3) Count the number of single pulses
     if len(glob.glob(sp_total_file)) == 0:
         print("Counting single pulses...")
-        sp_total = sp_utils.count_sp(files)
-        np.save(sp_total_file, sp_total)
+        sp_total, N_bin = sp_utils.count_sp(files)
+        np.save(sp_total_file, np.asarray(sp_total, N_bin))
     else:
-        sp_total = np.load(sp_total_file)
+        sp_total, N_bin = np.load(sp_total_file)
 
-    #   5) Calculate the off-pulse noise RMS
-    if len(glob.glob(rms_data_file)) == 0:
-        print("Calculating the off-pulse noise RMS")
-        rms_array = sp_utils.calculate_rms(files=files, n_sp=sp_total, n_chan=N_chan)
-        np.save(rms_data_file, rms_array)
-    else:
-        rms_array = np.load(rms_data_file)
-
-    #   6) Convert the observations to binary
+    #   4) Convert the observations to binary
     if len(glob.glob(binary_out_dir + "GUPPI*npy")) < len(files):
         print("Converting the observation to binary files...")
         times_data, channels_data = to_binary(files, binary_out_dir, sp_total, bandpass=bandpass)
@@ -105,9 +89,18 @@ if __name__ == '__main__':
         times_data = np.load(times_file)
         channels_data = np.load(channels_file)
 
+    N_chan = len(channels_data)
     binary_files = glob.glob(binary_out_dir + "GUPPI*npy")
 
-    #   7) Flags RFIs and create the weights
+    #   5) Calculate the off-pulse noise RMS
+    if len(glob.glob(rms_data_file)) == 0:
+        print("Calculating the off-pulse noise RMS")
+        rms_array = sp_utils.calculate_rms(files=files, n_sp=sp_total, n_chan=N_chan)
+        np.save(rms_data_file, rms_array)
+    else:
+        rms_array = np.load(rms_data_file)
+
+    #   6) Flags RFIs and create the weights
     if len(glob.glob(weights_file)) == 0:
         print("Removing RFIs")
         weights = remove_RFIs(files, binary_files, rms_array, windows_data)
@@ -124,7 +117,7 @@ if __name__ == '__main__':
         features_file: str = results_dir_2 + "features.pkl"
         results_file: str = results_dir_2 + "results.pkl"
 
-        #   8) merge and normalize the data
+        #   7) merge and normalize the data
         if len(glob.glob(merged_normalized_file)) == 0:
             print("Merging and normalizing the data...")
             normalized_data, unnormalized_data = merge(ds=ds, binary_files=binary_files, times_data=times_data,

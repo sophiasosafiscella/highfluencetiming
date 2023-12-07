@@ -40,12 +40,14 @@ def make_plots(dir):
 
 
 def count_sp(files):
-    n: int = 0
+    n_sp: int = 0
     for file in tqdm(files):
         ar = pyp.Archive(file, verbose=False)
-        n += ar.getNsubint()
+        n_sp += ar.getNsubint()
 
-    return n
+    N_bin: int = ar.getNbin()
+
+    return n_sp, N_bin
 
 
 def calculate_rms(files, n_sp, n_chan):
