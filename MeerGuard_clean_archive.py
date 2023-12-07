@@ -5,7 +5,7 @@ from __future__ import (absolute_import, division,
                         print_function, unicode_literals)
 
 # Import CoastGuard
-import cleaners
+from coast_guard import cleaners
 import argparse
 import psrchive as ps
 import os
