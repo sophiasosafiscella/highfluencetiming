@@ -1,18 +1,34 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import pypulse as pyp
+from MeerGuard import clean_archive
 from pypulse.utils import xrange
 from sklearn.preprocessing import normalize
 import clfd
 from clfd import DataCube, featurize, profile_mask
 from tqdm import tqdm
+import glob
 import sys
+import os
+import subprocess
+from tqdm import tqdm
+
+
+def meerguard(files, pulses_dir, template_file):
+
+    # Clean the .ar files
+    for file in files:
+        clean_archive.MeerGuard_clean(archive_path=file, template_path=template_file, output_name=file[:-3] + "_cleaned.ar")
+
+    return glob.glob(pulses_dir + "*_cleaned.ar")
+
 
 def zap(obs, val=0.0, t=None, f=None):
     '''
     Passes straight to archive's setWeights()
     '''
     obs.setWeights(val=val, t=t, f=f)
+
 
 def zap_minmax(data, weights, opw, windowsize=20, threshold=4.0):
     '''
@@ -102,6 +118,7 @@ def mask_RFI(data, weights, window_data, factor=8.0):
                 weights[i, j] = 0.0
 
     return weights
+
 
 def chisq_filter(ar, template_file, threshold=0.3):
 

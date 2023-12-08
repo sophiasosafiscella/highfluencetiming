@@ -11,7 +11,7 @@ from observations_utils import to_binary_and_calculate_rms, create_ds, merge
 import sp_utils
 import classification
 from timing_utils import time_single_pulses, weighted_moments
-from RFI_utils import remove_RFIs
+from RFI_utils import remove_RFIs, meerguard
 import os
 from IPython.display import display
 
@@ -38,6 +38,7 @@ if __name__ == '__main__':
     template_file = glob.glob("./data/*sm")[0]  # Files containing the template
     plot_clusters: bool = True  # Plot the single pulses in the cluster_sp_times
     time_sp: bool = False
+    meerguard_clean: bool = True # Clean using MeerGuard?
 
     binary_out_dir: str = pulses_dir + "binary/"
     bandpass = [16, 8]                             # How many channels we're removing from the upper and lower edges
@@ -78,6 +79,10 @@ if __name__ == '__main__':
         np.save(sp_total_file, np.asarray([sp_total, N_bin]))
     else:
         sp_total, N_bin = np.load(sp_total_file)
+
+    #   Optional: clean using MeerGuard
+    if meerguard_clean:
+        files = meerguard(files=files, pulses_dir=pulses_dir, template_file=template_file)
 
     #   4) Convert the observations to binary and calculate the off-pulse noise RMS
     if len(glob.glob(binary_out_dir + "GUPPI*npy")) < len(files):
