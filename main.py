@@ -24,7 +24,7 @@ if __name__ == '__main__':
     #   0) Get the file names
     band: str = "820_band"
     classifier: str = "Kmeans"        # Options: "Kmeans", "MeanShift", or "AffinityPropagation"
-    results_dir: str = "./results/" + band + "_restricted_bw/"  # Directory with the results
+    results_dir: str = "./results/" + band + "_meerguard/"  # Directory with the results
     pulses_dir: str = "./data/" + band + "/"
 
     if band == "L_band":
@@ -35,13 +35,13 @@ if __name__ == '__main__':
         print("Incorrect band")
 
     low_res_file = glob.glob(pulses_dir + "low_res/low*pF*")[0]  # Low-resolution file to create the dynamic spectrum
-    template_file = glob.glob("./data/*sm")[0]  # Files containing the template
+    template_file = glob.glob(pulses_dir +"*sm")[0]  # Files containing the template
     plot_clusters: bool = True  # Plot the single pulses in the cluster_sp_times
     time_sp: bool = False
     meerguard_clean: bool = True # Clean using MeerGuard?
 
     binary_out_dir: str = pulses_dir + "binary/"
-    bandpass = [16, 8]                             # How many channels we're removing from the upper and lower edges
+#    bandpass = [16, 8]                             # How many channels we're removing from the upper and lower edges
     times_file: str = binary_out_dir + "times_data.npy"
     channels_file: str = binary_out_dir + "channels_data.npy"
 
@@ -105,8 +105,7 @@ if __name__ == '__main__':
         np.save(weights_file, weights)
     else:
         weights = np.load(weights_file)
-        print(np.shape(weights))
-        sys.exit()
+
     # Inject different levels of noise
     for noise_factor in [0.0]:
 
