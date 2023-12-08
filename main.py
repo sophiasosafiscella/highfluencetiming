@@ -87,7 +87,7 @@ if __name__ == '__main__':
     #   4) Convert the observations to binary and calculate the off-pulse noise RMS
     if len(glob.glob(binary_out_dir + "GUPPI*npy")) < len(files):
         print("Converting the observation to binary files...")
-        times_data, channels_data, rms_array = to_binary_and_calculate_rms(files, binary_out_dir, sp_total, bandpass)
+        times_data, channels_data, rms_array = to_binary_and_calculate_rms(files, binary_out_dir, sp_total)
         np.save(times_file, times_data)
         np.save(channels_file, channels_data)
         np.save(rms_data_file, rms_array)
