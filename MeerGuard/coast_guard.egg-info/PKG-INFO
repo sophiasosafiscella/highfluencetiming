@@ -1,0 +1,6 @@
+Metadata-Version: 2.1
+Name: coast-guard
+Version: 1.0.0
+Summary: MeerTime copy of coast_guard: Stripped for RFI excision and modified for zapping of wide-bandwidth data with a frequency-dependent template
+Home-page: https://github.com/danielreardon/MeerGuard
+Requires-Python: >=3.7
