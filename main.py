@@ -24,7 +24,7 @@ if __name__ == '__main__':
     #   0) Get the file names
     band: str = "820_band"
     classifier: str = "Kmeans"        # Options: "Kmeans", "MeanShift", or "AffinityPropagation"
-    results_dir: str = "./results/" + band + "_meerguard/"  # Directory with the results
+    results_dir: str = "./results/" + band + "_new_full_bw/"  # Directory with the results
     pulses_dir: str = "./data/" + band + "/"
 
     if band == "L_band":
@@ -38,7 +38,7 @@ if __name__ == '__main__':
     template_file = glob.glob(pulses_dir +"*sm")[0]  # Files containing the template
     plot_clusters: bool = True  # Plot the single pulses in the cluster_sp_times
     time_sp: bool = False
-    meerguard_clean: bool = True # Clean using MeerGuard?
+    meerguard_clean: bool = False  # Clean using MeerGuard?
 
     binary_out_dir: str = pulses_dir + "binary/"
 #    bandpass = [16, 8]                             # How many channels we're removing from the upper and lower edges
