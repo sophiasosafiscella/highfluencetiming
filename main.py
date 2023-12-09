@@ -102,7 +102,10 @@ if __name__ == '__main__':
         channels_data = np.load(channels_file)
         rms_array = np.load(rms_data_file)
 
-    binary_files = glob.glob(binary_out_dir + "GUPPI*npy")
+    if meerguard_clean:
+        binary_files = glob.glob(binary_out_dir + "GUPPI*_cleaned.npy")
+    else:
+        binary_files = glob.glob(binary_out_dir + "GUPPI*npy")
 
     #   6) Flags RFIs and create the weights
     if len(glob.glob(weights_file)) == 0:
