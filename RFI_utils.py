@@ -30,7 +30,7 @@ def zap(obs, val=0.0, t=None, f=None):
     obs.setWeights(val=val, t=t, f=f)
 
 
-def zap_minmax(data, weights, opw, windowsize=20, threshold=4.0):
+def zap_minmax(data, weights, opw, windowsize=20, threshold=3.0):
     '''
     Run NANOGrav algorithm, median zapping. Run per subintegration
     windowsize = 20 frequency bins long

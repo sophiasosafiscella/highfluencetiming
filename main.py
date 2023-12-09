@@ -21,9 +21,9 @@ import os
 if __name__ == '__main__':
 
     #   0) Get the file names
-    band: str = "820_band"
+    band: str = "L_band"
     classifier: str = "Kmeans"        # Options: "Kmeans", "MeanShift", or "AffinityPropagation"
-    results_dir: str = "./results/" + band + "_new/"  # Directory with the results
+    results_dir: str = "./results/" + band + "_new_restricted_bw/"  # Directory with the results
     pulses_dir: str = "./data/" + band + "/"
 
     if band == "L_band":
@@ -41,6 +41,7 @@ if __name__ == '__main__':
 
     binary_out_dir: str = pulses_dir + "binary/"
 #    bandpass = [64, 32]                             # How many channels we're removing from the upper and lower edges
+    bandpass = None
     times_file: str = binary_out_dir + "times_data.npy"
     channels_file: str = binary_out_dir + "channels_data.npy"
 
@@ -81,12 +82,18 @@ if __name__ == '__main__':
 
     #   Optional: clean using MeerGuard
     if meerguard_clean:
-#        files = meerguard(files=files, pulses_dir=pulses_dir, template_file=template_file)
-        filles = sorted(glob.glob(pulses_dir + "GUPPI_cleaned.ar"))
+        if len(glob.glob(pulses_dir + "GUPPI*_cleaned.ar")) == 0:
+            files = meerguard(files=files, pulses_dir=pulses_dir, template_file=template_file)
+        else:
+            if band == "L_band":
+                files = sorted(glob.glob(pulses_dir + "GUPPI*_cleaned.ar"))[:1714]
+            elif band == "820_band":
+                files = sorted(glob.glob(pulses_dir + "GUPPI*_cleaned.ar"))[:1693]
+
     #   4) Convert the observations to binary and calculate the off-pulse noise RMS
     if len(glob.glob(binary_out_dir + "GUPPI*npy")) < len(files):
         print("Converting the observation to binary files...")
-        times_data, channels_data, rms_array = to_binary_and_calculate_rms(files, binary_out_dir, sp_total)
+        times_data, channels_data, rms_array = to_binary_and_calculate_rms(files, binary_out_dir, sp_total, bandpass)
         np.save(times_file, times_data)
         np.save(channels_file, channels_data)
         np.save(rms_data_file, rms_array)
