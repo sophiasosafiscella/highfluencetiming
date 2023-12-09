@@ -212,7 +212,7 @@ def remove_RFIs(files, binary_files, noise_rms, window_data):
 
 #       Assign a weight equal to 0 to the RFI-affected single pulses
 #        weights[last_index: new_index, :] = clfd(files[n], weights[last_index: new_index, :])
-        weights[last_index: new_index, :] = mask_RFI(data, weights[last_index: new_index, :], window_data)       # Account for individual RFIs and null single pulses
+#        weights[last_index: new_index, :] = mask_RFI(data, weights[last_index: new_index, :], window_data)       # Account for individual RFIs and null single pulses
         weights[last_index: new_index, :] = zap_minmax(data, weights[last_index: new_index, :], offpulsewindow)  # Zap noisy frequency channels
 #        chisq_filter(ar, template_file=template_file)   # Filter RFIs by the chisq from fitting the SPs to the template
 #        weights = opw_peaks(data, weights, window_data)                # Filter single pulses with sharp peaks in the off-window region
