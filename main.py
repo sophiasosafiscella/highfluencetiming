@@ -11,7 +11,7 @@ from observations_utils import to_binary_and_calculate_rms, create_ds, merge
 import sp_utils
 import classification
 from timing_utils import time_single_pulses, weighted_moments
-from RFI_utils import remove_RFIs, meerguard
+from RFI_utils import remove_RFIs
 import os
 
 # IMPORTANT: we're assuming that the observations has already been processed
