@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import pypulse as pyp
 import numpy as np
 import pandas as pd
+from sklearn.preprocessing import normalize
 from tqdm import tqdm
 import sys
 
@@ -109,14 +110,21 @@ def to_binary_and_calculate_rms(files, out_dir, n_sp, bandpass=None, shift: int 
 
     # Iterate over the files
     for file in tqdm(files):
+
+        # Load the observation
         ar = pyp.Archive(file, prepare=False, center_pulse=False, baseline_removal=False,
                          lowmem=True, verbose=False)
 
-        ar.pscrunch()
-        ar.dedisperse()
+        ar.pscrunch()    # Crunch in frequency
+        ar.dedisperse()  # Dedisperse
 
+        # Get the weights from the observation
+        weights = ar.getWeights()
+        print(weights)
+        sys.exit()
+
+        # Save the times
         new_index = ar.getNsubint() + last_index
-
         data_times = ar.getTimes() + time  # We add the time at the end of the previous observation
         total_times[last_index:new_index] = data_times
 
@@ -128,6 +136,8 @@ def to_binary_and_calculate_rms(files, out_dir, n_sp, bandpass=None, shift: int 
 
         # Calculate the off-pulse RMS noise
         rms_values[last_index:new_index, :] = np.std(rolled[:, bandpass[0]: bandpass[1], opw])
+
+
 
         time += ar.getDuration()
         last_index = new_index
