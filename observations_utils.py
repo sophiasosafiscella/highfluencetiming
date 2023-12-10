@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import pypulse as pyp
+import psrchive as ps
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import normalize
@@ -67,6 +68,8 @@ def to_binary(files, out_dir, sp_total, bandpass=None, shift: int = -220):
                          lowmem=True, verbose=False).getAxis(flag="F", edges=True)[bandpass[0]: bandpass[1]]
 
     for file in tqdm(files):
+
+        # Load to PyPulse
         ar = pyp.Archive(file, prepare=False, center_pulse=False, baseline_removal=False,
                          lowmem=True, verbose=False)
 
@@ -107,25 +110,31 @@ def to_binary_and_calculate_rms(files, out_dir, n_sp, bandpass=None, shift: int 
     channels = pyp.Archive(files[0], prepare=False, center_pulse=False, baseline_removal=False,
                          lowmem=True, verbose=False).getAxis(flag="F", edges=True)[bandpass[0]: bandpass[1]]
 
-    # Create an array to store the RMS values\
+    # Create an array to store the RMS values
     opw = np.arange(0, 100)
     rms_values = np.full((n_sp, len(channels)), np.nan)
+
+    # Create an array to store the weights
+    total_weights = np.full((n_sp, len(channels)), np.nan)
 
     # Iterate over the files
     for file in tqdm(files):
 
-        # Load the observation
+        # Load the observation to PyPulse
         ar = pyp.Archive(file, prepare=False, center_pulse=False, baseline_removal=False,
                          lowmem=True, verbose=False)
 
-        ar.pscrunch()    # Crunch in frequency
         ar.dedisperse()  # Dedisperse
+
+        # Save the weights
+        weights = ar.getWeights()
 
         # Save the times
         new_index = ar.getNsubint() + last_index
         data_times = ar.getTimes() + time  # We add the time at the end of the previous observation
         total_times[last_index:new_index] = data_times
 
+        # Center the main pulse peak
         rolled = np.roll(ar.getData(), shift, axis=2)
         rolled -= np.average(np.average(np.average(rolled, axis=1), axis=0)[opw])   # Subtract the baseline
 
@@ -135,17 +144,18 @@ def to_binary_and_calculate_rms(files, out_dir, n_sp, bandpass=None, shift: int 
         # Calculate the off-pulse RMS noise
         rms_values[last_index:new_index, :] = np.std(rolled[:, bandpass[0]: bandpass[1], opw])
 
-        # Assign the observation a weight equal to 1/sigma2 to each single pulse
-        ar.setWeights(normalize(np.power(rms_values[last_index:new_index, :], -2), axis=0))
+        # IF THE WEIGHTS HAVE NOT ALREADY BEEN FLAGGED AS ZERO, assign a weight equal to 1/sigma2 to each single pulse
+        for indexes in np.where(weights > 0.0):
+            weights[indexes[0], indexes[1]] = normalize(np.power(rms_values[last_index:new_index, :], -2), axis=0)
 
-        # Unload the observation with the new weights
-        ar.unload(file[:-3] + "_weighted.ar")
+        # Save the new weights to the total weights array
+        total_weights[last_index:new_index, :] = weights
 
         # Update the times
         time += ar.getDuration()
         last_index = new_index
 
-    return total_times, channels, rms_values
+    return total_times, channels, rms_values, total_weights
 
 
 def merge(ds, binary_files, times_data, channels_data, full_weights, N_bin, sp_total, noise_rms, noise_factor):

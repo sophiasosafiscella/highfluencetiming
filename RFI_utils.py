@@ -1,6 +1,10 @@
+from typing import Any
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pypulse as pyp
+from numpy import ndarray, dtype
+
 from MeerGuard import clean_archive
 from pypulse.utils import xrange
 from sklearn.preprocessing import normalize
@@ -12,6 +16,23 @@ import sys
 import os
 import subprocess
 from tqdm import tqdm
+
+
+def meerguard(files, pulses_dir, band, template_file):
+
+    # Clean the .ar files
+    for file in files:
+        clean_archive.MeerGuard_clean(archive_path=file, template_path=template_file, output_name=file[:-3] + "_cleaned.ar")
+
+    if band == "L_band":
+        new_files = sorted(glob.glob(pulses_dir + "*_cleaned.ar"))[:1714]  # Files containing the observations
+    elif band == "820_band":
+        new_files = sorted(glob.glob(pulses_dir + "*_cleaned.*ar"))[:1693]
+    else:
+        print("Incorrect band")
+
+    return new_files
+
 
 def zap(obs, val=0.0, t=None, f=None):
     '''
@@ -182,37 +203,16 @@ def clfd(file, weights, plot=False):
     return weights
 
 
-def remove_RFIs(files, window_data, template_file, noise_rms,
-                meerguard_ok: bool = False,
+def remove_RFIs(files, binary_files, windows_data, weights, template_file,
                 clfd_ok: bool = False,
-                mask_RFI_ok: bool = False,
+                mask_rfi_ok: bool = False,
                 zap_minmax_ok: bool = False,
+                chisq_filter_ok: bool = False,
                 opw_peaks_ok: bool = False):
 
-    for file in files:
-
-        # Set the weights as equal to 1/sigma2 to each single pulse
-        weights = normalize(np.power(noise_rms, -2), axis=0)
-
-        # If we choose to clean using MeerGuard
-        if meerguard_ok:
-
-            # Clean the observation using MeerGuard
-            output_name: str = file[:-3] + "_cleaned.ar"
-            weights = clean_archive.MeerGuard_clean(archive_path=file, template_path=template_file, output_name=output_name)
-
-
-
-
-
-
-    
-    # Assign a weight equal to 1/sigma2 to each single pulse
-    weights = normalize(np.power(noise_rms, -2), axis=0)
-
     # Get the off-pulse window
-    offpulsewindow = np.linspace(window_data[0, 0], window_data[0, 1],
-                                 num=window_data[0, 1] - window_data[0, 0] + 1).astype(int)
+    offpulsewindow: ndarray[Any, dtype[Any]] = np.linspace(windows_data[0, 0], windows_data[0, 1],
+                                 num=windows_data[0, 1] - windows_data[0, 0] + 1).astype(int)
 
     # Iterate over the files
     last_index: int = 0
@@ -223,12 +223,20 @@ def remove_RFIs(files, window_data, template_file, noise_rms,
 
         new_index = Nsubint + last_index
 
-#       Assign a weight equal to 0 to the RFI-affected single pulses
-        weights[last_index: new_index, :] = clfd(files[n], weights[last_index: new_index, :])
-#        weights[last_index: new_index, :] = mask_RFI(data, weights[last_index: new_index, :], window_data)       # Account for individual RFIs and null single pulses
-        weights[last_index: new_index, :] = zap_minmax(data, weights[last_index: new_index, :], offpulsewindow)  # Zap noisy frequency channels
-#        chisq_filter(ar, template_file=template_file)   # Filter RFIs by the chisq from fitting the SPs to the template
-#        weights = opw_peaks(data, weights, window_data)                # Filter single pulses with sharp peaks in the off-window region
+        if clfd_ok:
+            weights[last_index: new_index, :] = clfd(files[n], weights[last_index: new_index, :])
+
+        if mask_rfi_ok:       # Account for individual RFIs and null single pulses
+            weights[last_index: new_index, :] = mask_RFI(data, weights[last_index: new_index, :], windows_data)
+
+        if zap_minmax_ok:     # Zap noisy frequency channels
+            weights[last_index: new_index, :] = zap_minmax(data, weights[last_index: new_index, :], offpulsewindow)
+
+        if chisq_filter_ok:    # Filter RFIs by the chisq from fitting the SPs to the template
+            chisq_filter(data, template_file=template_file)
+
+        if opw_peaks_ok:      # Filter single pulses with sharp peaks in the off-window region
+            weights = opw_peaks(data, weights, windows_data)
 
         last_index = new_index
 

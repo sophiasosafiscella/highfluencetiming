@@ -11,7 +11,7 @@ from observations_utils import to_binary_and_calculate_rms, create_ds, merge
 import sp_utils
 import classification
 from timing_utils import time_single_pulses, weighted_moments
-from RFI_utils import remove_RFIs
+from RFI_utils import remove_RFIs, meerguard
 import os
 
 # IMPORTANT: we're assuming that the observations has already been processed
@@ -30,14 +30,18 @@ if __name__ == '__main__':
         files = sorted(glob.glob(pulses_dir + "GUPPI*ar"))[:1714]  # Files containing the observations
     elif band == "820_band":
         files = sorted(glob.glob(pulses_dir + "GUPPI*ar"))[:1693]
-    else:
-        print("Incorrect band")
 
     low_res_file = glob.glob(pulses_dir + "low_res/low*pF*")[0]  # Low-resolution file to create the dynamic spectrum
     template_file = glob.glob(pulses_dir +"*sm")[0]  # Files containing the template
     plot_clusters: bool = True  # Plot the single pulses in the cluster_sp_times
     time_sp: bool = False
-    meerguard_clean: bool = True  # Clean using MeerGuard?
+
+    meerguard_ok: bool = True      # Clean using MeerGuard?
+    clfd_ok: bool = False          # Clean using clfd?
+    mask_RFI_ok: bool = False      # Clean using mask_RFI?
+    zap_minmax_ok: bool = False    # Clean using zap_minmax?
+    chisq_filter_ok: bool = False   # Clean using chisq_filter?
+    opw_peaks_ok: bool = False     # Clean using opw_peaks?
 
     binary_out_dir: str = pulses_dir + "binary/"
 #    bandpass = [64, 32]                             # How many channels we're removing from the upper and lower edges
@@ -49,6 +53,7 @@ if __name__ == '__main__':
     windows_data_file: str = results_dir + "window_data.npy"
     sp_total_file: str = results_dir + "n_sp.npy"
     rms_data_file: str = results_dir + "rms.npy"
+    basic_weights_file: str = results_dir + "basic_weights.npy"
     weights_file: str = results_dir + "weights.npy"
 
     k_values = np.arange(1, 18, 1, dtype=int)  # Number of clusters for the classifier
@@ -80,31 +85,32 @@ if __name__ == '__main__':
     else:
         sp_total, N_bin = np.load(sp_total_file)
 
-    #   4) Convert the observations to binary, calculate the off-pulse noise RMS, and weight them
+    #   3) Clean the observations using MeerGuard
+    if meerguard_ok:
+        files = meerguard(files, pulses_dir, band, template_file)
+
+    #   4) Convert the observations to binary and weight them according to the off-pulse noise RMS
     if len(glob.glob(binary_out_dir + "*J2145*npy")) < len(files):
         print("Converting the observation to binary files...")
-        times_data, channels_data, rms_array = to_binary_and_calculate_rms(files, binary_out_dir, sp_total, bandpass)
+        times_data, channels_data, rms_array, basic_weights = to_binary_and_calculate_rms(files, binary_out_dir, sp_total, bandpass)
         np.save(times_file, times_data)
         np.save(channels_file, channels_data)
         np.save(rms_data_file, rms_array)
+        np.save(weights_file, basic_weights_file)
     else:
         times_data = np.load(times_file)
         channels_data = np.load(channels_file)
         rms_array = np.load(rms_data_file)
+        basic_weights = np.load(basic_weights_file)
 
-    # Load the new weighted files
-    if band == "L_band":
-        weighted_files = sorted(glob.glob(pulses_dir + "*_weighted.ar"))[:1714]  # Files containing the observations
-    elif band == "820_band":
-        weighted_files = sorted(glob.glob(pulses_dir + "*_weighted.ar"))[:1693]
-
-    # and the binary files
-    binary_files = glob.glob(binary_out_dir + "GUPPI*npy")
+    # Find the binary files
+    binary_files = glob.glob(binary_out_dir + "*J2145*npy")
 
     #   6) Flags RFIs and create the weights
     if len(glob.glob(weights_file)) == 0:
         print("Removing RFIs")
-        weights = remove_RFIs(weighted_files, binary_files, rms_array, windows_data)
+        weights = remove_RFIs(files, binary_files, windows_data, basic_weights, template_file, clfd_ok, mask_RFI_ok,
+                              zap_minmax_ok, chisq_filter_ok, opw_peaks_ok)
         np.save(weights_file, weights)
     else:
         weights = np.load(weights_file)
