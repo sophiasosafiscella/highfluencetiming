@@ -30,7 +30,7 @@ def zap(obs, val=0.0, t=None, f=None):
     obs.setWeights(val=val, t=t, f=f)
 
 
-def zap_minmax(data, weights, opw, windowsize=20, threshold=3.0):
+def zap_minmax(data, weights, opw, windowsize=20, threshold=4.0):
     '''
     Run NANOGrav algorithm, median zapping. Run per subintegration
     windowsize = 20 frequency bins long
@@ -83,7 +83,7 @@ def zap_minmax(data, weights, opw, windowsize=20, threshold=3.0):
     return weights
 
 
-def mask_RFI(data, weights, window_data, factor=8.0):
+def mask_RFI(data, weights, window_data, factor=6.0):
 
     Nsubint, Nchan, Nbin = np.shape(data)
 
@@ -151,7 +151,7 @@ def opw_peaks(data, weights, window_data, threshold=0.75):
 
 #            sp = pyp.SinglePulse(data[i, j, :], opw=np.arange(0, 100))
 #            opw = sp.calcOffpulseWindow()
-            opw_average = np.average(data[i, j, window_data[0, 0], window_data[0, 0]])
+            opw_average = np.average(data[i, j, window_data[0, 0]: window_data[1, 0]])
             opw_maximum = np.amax(data[i, j, np.r_[0:window_data[1, 0], window_data[1, 0]:Nbin]])
 
             if ((opw_maximum - opw_average) > threshold * opw_maximum):
@@ -211,7 +211,7 @@ def remove_RFIs(files, binary_files, noise_rms, window_data):
         new_index = Nsubint + last_index
 
 #       Assign a weight equal to 0 to the RFI-affected single pulses
-#        weights[last_index: new_index, :] = clfd(files[n], weights[last_index: new_index, :])
+        weights[last_index: new_index, :] = clfd(files[n], weights[last_index: new_index, :])
 #        weights[last_index: new_index, :] = mask_RFI(data, weights[last_index: new_index, :], window_data)       # Account for individual RFIs and null single pulses
         weights[last_index: new_index, :] = zap_minmax(data, weights[last_index: new_index, :], offpulsewindow)  # Zap noisy frequency channels
 #        chisq_filter(ar, template_file=template_file)   # Filter RFIs by the chisq from fitting the SPs to the template
