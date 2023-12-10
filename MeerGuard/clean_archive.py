@@ -57,5 +57,4 @@ def MeerGuard_clean(archive_path, template_path, output_name: str, chan_thresh: 
 	loaded_archive.unload(
 		str(out_name))  # need to typecast to str here because otherwise Python converts to a unicode string which the PSRCHIVE library can't parse
 
-    # Get the new weights
-	return loaded_archive.get_weights()
+	return
