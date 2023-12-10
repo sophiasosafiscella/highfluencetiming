@@ -87,7 +87,14 @@ if __name__ == '__main__':
 
     #   3) Clean the observations using MeerGuard
     if meerguard_ok:
-        files = meerguard(files, pulses_dir, band, template_file)
+
+        if len(glob.glob(pulses_dir + "*_cleaned.ar")) < len(files):
+            files = meerguard(files, pulses_dir, band, template_file)
+        else:
+            if band == "L_band":
+                files = sorted(glob.glob(pulses_dir + "*_cleaned.ar"))  # Files containing the observations
+            elif band == "820_band":
+                files = sorted(glob.glob(pulses_dir + "*_cleaned.*ar"))
 
     #   4) Convert the observations to binary and weight them according to the off-pulse noise RMS
     if len(glob.glob(binary_out_dir + "*J2145*npy")) < len(files):
