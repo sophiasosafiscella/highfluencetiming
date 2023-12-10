@@ -24,12 +24,7 @@ def meerguard(files, pulses_dir, band, template_file):
     for file in files:
         clean_archive.MeerGuard_clean(archive_path=file, template_path=template_file, output_name=file[:-3] + "_cleaned.ar")
 
-    if band == "L_band":
-        new_files = sorted(glob.glob(pulses_dir + "*_cleaned.ar"))  # Files containing the observations
-    elif band == "820_band":
-        new_files = sorted(glob.glob(pulses_dir + "*_cleaned.*ar"))
-
-    return new_files
+    return
 
 
 def zap(obs, val=0.0, t=None, f=None):
