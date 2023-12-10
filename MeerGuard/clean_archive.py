@@ -34,21 +34,7 @@ def apply_bandwagon_cleaner(ar, badchantol=0.95, badsubtol=0.95):
 
 
 def MeerGuard_clean(archive_path, template_path, output_name: str, chan_thresh: float = 7.0, subint_thresh: float = 7.0,
-                    badchantol: float = 0.95, badsubtol: float = 0.95, plot: bool = False,
-                    output_path: str = os.getcwd()):
-	# if __name__ == "__main__":
-	# Parse some arguments to set up cleaning
-	#    parser = argparse.ArgumentParser(description="Run MeerGuard on input archive file")
-	#    parser.add_argument("-a", "--archive", type=str, dest="archive_path", help="Path to the archive file")
-	#    parser.add_argument("-T", "--template", type=str, dest="template_path", help="Path to the 2D template file")
-	#    parser.add_argument("-c", "--chanthresh", type=float, dest="chan_thresh", help="Channel threshold (in sigma) [default = 7.0]", default=7.0)
-	#    parser.add_argument("-s", "--subthresh", type=float, dest="subint_thresh", help="Subint threshold (in sigma) [default = 7.0]", default=7.0)
-	#    parser.add_argument("-bc", "--badchantol", type=float, dest="badchantol", help="Fraction of bad channels threshold [default = 0.95]", default=0.95)
-	#    parser.add_argument("-bs", "--badsubtol", type=float, dest="badsubtol", help="Fraction of bad subints threshold (in sigma) [default = 0.95]", default=0.95)
-	#    parser.add_argument("-o", "--outname", type=str, dest="output_name", help="Output archive name", default=None)
-	#    parser.add_argument("-plot", "--plot", dest='plot', action='store_true', default=False)
-	#    parser.add_argument("-O", "--outpath", type=str, dest="output_path", help="Output path [default = CWD]", default=os.getcwd())
-	#    args = parser.parse_args()
+                    badchantol: float = 0.95, badsubtol: float = 0.95, plot: bool = False, output_path: str = os.getcwd()):
 
 	# Load an Archive file
 	loaded_archive = ps.Archive_load(archive_path)
@@ -71,4 +57,5 @@ def MeerGuard_clean(archive_path, template_path, output_name: str, chan_thresh: 
 	loaded_archive.unload(
 		str(out_name))  # need to typecast to str here because otherwise Python converts to a unicode string which the PSRCHIVE library can't parse
 
-	return
+    # Get the new weights
+	return loaded_archive.get_weights()

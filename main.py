@@ -80,17 +80,7 @@ if __name__ == '__main__':
     else:
         sp_total, N_bin = np.load(sp_total_file)
 
-    #   Optional: clean using MeerGuard
-    if meerguard_clean:
-        if len(glob.glob(pulses_dir + "GUPPI*_cleaned.ar")) != len(files):
-            files = meerguard(files=files, pulses_dir=pulses_dir, template_file=template_file)
-        else:
-            if band == "L_band":
-                files = sorted(glob.glob(pulses_dir + "GUPPI*_cleaned.ar"))[:1714]
-            elif band == "820_band":
-                files = sorted(glob.glob(pulses_dir + "GUPPI*_cleaned.ar"))[:1693]
-
-    #   4) Convert the observations to binary and calculate the off-pulse noise RMS
+    #   4) Convert the observations to binary, calculate the off-pulse noise RMS, and weight them
     if len(glob.glob(binary_out_dir + "*J2145*npy")) < len(files):
         print("Converting the observation to binary files...")
         times_data, channels_data, rms_array = to_binary_and_calculate_rms(files, binary_out_dir, sp_total, bandpass)
@@ -102,15 +92,19 @@ if __name__ == '__main__':
         channels_data = np.load(channels_file)
         rms_array = np.load(rms_data_file)
 
-    if meerguard_clean:
-        binary_files = glob.glob(binary_out_dir + "*J2145*_cleaned.npy")
-    else:
-        binary_files = glob.glob(binary_out_dir + "GUPPI*npy")
+    # Load the new weighted files
+    if band == "L_band":
+        weighted_files = sorted(glob.glob(pulses_dir + "*_weighted.ar"))[:1714]  # Files containing the observations
+    elif band == "820_band":
+        weighted_files = sorted(glob.glob(pulses_dir + "*_weighted.ar"))[:1693]
+
+    # and the binary files
+    binary_files = glob.glob(binary_out_dir + "GUPPI*npy")
 
     #   6) Flags RFIs and create the weights
     if len(glob.glob(weights_file)) == 0:
         print("Removing RFIs")
-        weights = remove_RFIs(files, binary_files, rms_array, windows_data)
+        weights = remove_RFIs(weighted_files, binary_files, rms_array, windows_data)
         np.save(weights_file, weights)
     else:
         weights = np.load(weights_file)

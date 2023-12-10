@@ -58,6 +58,7 @@ def to_binary(files, out_dir, sp_total, bandpass=None, shift: int = -220):
     else:
         bandpass[1] *= -1
 
+    # Store the single pulse times
     total_times = np.zeros(sp_total)
     time: float = 0.0
     last_index: int = 0
@@ -72,11 +73,12 @@ def to_binary(files, out_dir, sp_total, bandpass=None, shift: int = -220):
         ar.pscrunch()
         ar.dedisperse()
 
+        # Save the times
         new_index = ar.getNsubint() + last_index
-
         data_times = ar.getTimes() + time  # We add the time at the end of the previous observation
         total_times[last_index:new_index] = data_times
 
+        # Center the main pulse
         rolled = np.roll(ar.getData(), shift, axis=2)
         rolled -= np.average(np.average(np.average(rolled, axis=1), axis=0)[0:100])   # Subtract the baseline
 
@@ -87,6 +89,7 @@ def to_binary(files, out_dir, sp_total, bandpass=None, shift: int = -220):
         last_index = new_index
 
     return total_times, channels
+
 
 def to_binary_and_calculate_rms(files, out_dir, n_sp, bandpass=None, shift: int = -220):
 
@@ -118,11 +121,6 @@ def to_binary_and_calculate_rms(files, out_dir, n_sp, bandpass=None, shift: int 
         ar.pscrunch()    # Crunch in frequency
         ar.dedisperse()  # Dedisperse
 
-        # Get the weights from the observation
-        weights = ar.getWeights()
-        print(weights)
-        sys.exit()
-
         # Save the times
         new_index = ar.getNsubint() + last_index
         data_times = ar.getTimes() + time  # We add the time at the end of the previous observation
@@ -137,12 +135,18 @@ def to_binary_and_calculate_rms(files, out_dir, n_sp, bandpass=None, shift: int 
         # Calculate the off-pulse RMS noise
         rms_values[last_index:new_index, :] = np.std(rolled[:, bandpass[0]: bandpass[1], opw])
 
+        # Assign the observation a weight equal to 1/sigma2 to each single pulse
+        ar.setWeights(normalize(np.power(rms_values[last_index:new_index, :], -2), axis=0))
 
+        # Unload the observation with the new weights
+        ar.unload(file[:-3] + "_weighted.ar")
 
+        # Update the times
         time += ar.getDuration()
         last_index = new_index
 
     return total_times, channels, rms_values
+
 
 def merge(ds, binary_files, times_data, channels_data, full_weights, N_bin, sp_total, noise_rms, noise_factor):
 

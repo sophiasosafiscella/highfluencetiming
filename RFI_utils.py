@@ -13,16 +13,6 @@ import os
 import subprocess
 from tqdm import tqdm
 
-
-def meerguard(files, pulses_dir, template_file):
-
-    # Clean the .ar files
-    for file in files:
-        clean_archive.MeerGuard_clean(archive_path=file, template_path=template_file, output_name=file[:-3] + "_cleaned.ar")
-
-    return glob.glob(pulses_dir + "*_cleaned.ar")
-
-
 def zap(obs, val=0.0, t=None, f=None):
     '''
     Passes straight to archive's setWeights()
@@ -192,7 +182,30 @@ def clfd(file, weights, plot=False):
     return weights
 
 
-def remove_RFIs(files, binary_files, noise_rms, window_data):
+def remove_RFIs(files, window_data, template_file, noise_rms,
+                meerguard_ok: bool = False,
+                clfd_ok: bool = False,
+                mask_RFI_ok: bool = False,
+                zap_minmax_ok: bool = False,
+                opw_peaks_ok: bool = False):
+
+    for file in files:
+
+        # Set the weights as equal to 1/sigma2 to each single pulse
+        weights = normalize(np.power(noise_rms, -2), axis=0)
+
+        # If we choose to clean using MeerGuard
+        if meerguard_ok:
+
+            # Clean the observation using MeerGuard
+            output_name: str = file[:-3] + "_cleaned.ar"
+            weights = clean_archive.MeerGuard_clean(archive_path=file, template_path=template_file, output_name=output_name)
+
+
+
+
+
+
     
     # Assign a weight equal to 1/sigma2 to each single pulse
     weights = normalize(np.power(noise_rms, -2), axis=0)
