@@ -105,7 +105,7 @@ if __name__ == '__main__':
 
     # Find the binary files
     binary_files = glob.glob(binary_out_dir + "*J2145*npy")
-
+    sys.exit()
     #   6) Flags RFIs and create the weights
     if len(glob.glob(weights_file)) == 0:
         print("Removing RFIs")
