@@ -207,11 +207,10 @@ def remove_RFIs(files, binary_files, windows_data, weights, rms_array, template_
     offpulsewindow: ndarray[Any, dtype[Any]] = np.linspace(windows_data[0, 0], windows_data[0, 1],
                                  num=(windows_data[0, 1] - windows_data[0, 0] + 1).astype(int))
 
-    print(rms_array)
+
    # Calculate 1/sigma2 for each single pulse
-    sigma2 = normalize(np.power(rms_array, -2), axis=0)
-    sys.exit()
-    print(sigma2)
+    sigma2 = normalize(np.power(rms_array_new, -2), axis=0)
+
     # IF THE WEIGHTS HAVE NOT ALREADY BEEN FLAGGED AS ZERO, assign a weight equal to 1/sigma2 to each single pulse
     for indexes in np.argwhere(weights > 0.0):
         weights[indexes[0], indexes[1]] = sigma2[indexes[0], indexes[1]]
