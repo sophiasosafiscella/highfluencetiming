@@ -112,12 +112,12 @@ if __name__ == '__main__':
 
     # Find the binary files
     binary_files = glob.glob(binary_out_dir + "*J2145*npy")
-    sys.exit()
+
     #   6) Flags RFIs and create the weights
     if len(glob.glob(weights_file)) == 0:
-        print("Removing RFIs")
-        weights = remove_RFIs(files, binary_files, windows_data, basic_weights, template_file, clfd_ok, mask_RFI_ok,
-                              zap_minmax_ok, chisq_filter_ok, opw_peaks_ok)
+        print("Removing RFIs...")
+        weights = remove_RFIs(files, binary_files, windows_data, basic_weights, rms_array, template_file,
+                              clfd_ok, mask_RFI_ok, zap_minmax_ok, chisq_filter_ok, opw_peaks_ok)
         np.save(weights_file, weights)
     else:
         weights = np.load(weights_file)

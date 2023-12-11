@@ -127,7 +127,7 @@ def to_binary_and_calculate_rms(files, out_dir, n_sp, bandpass=None, shift: int 
         ar.dedisperse()  # Dedisperse
 
         # Save the weights
-        weights = ar.getWeights()
+        total_weights[last_index:new_index, :] = ar.getWeights()
 
         # Save the times
         new_index = ar.getNsubint() + last_index
@@ -143,13 +143,6 @@ def to_binary_and_calculate_rms(files, out_dir, n_sp, bandpass=None, shift: int 
 
         # Calculate the off-pulse RMS noise
         rms_values[last_index:new_index, :] = np.std(rolled[:, bandpass[0]: bandpass[1], opw])
-
-        # IF THE WEIGHTS HAVE NOT ALREADY BEEN FLAGGED AS ZERO, assign a weight equal to 1/sigma2 to each single pulse
-        for indexes in np.where(weights > 0.0):
-            weights[indexes[0], indexes[1]] = normalize(np.power(rms_values[last_index:new_index, :], -2), axis=0)
-
-        # Save the new weights to the total weights array
-        total_weights[last_index:new_index, :] = weights
 
         # Update the times
         time += ar.getDuration()

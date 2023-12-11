@@ -196,7 +196,7 @@ def clfd(file, weights, plot=False):
     return weights
 
 
-def remove_RFIs(files, binary_files, windows_data, weights, template_file,
+def remove_RFIs(files, binary_files, windows_data, weights, rms_array, template_file,
                 clfd_ok: bool = False,
                 mask_rfi_ok: bool = False,
                 zap_minmax_ok: bool = False,
@@ -206,6 +206,14 @@ def remove_RFIs(files, binary_files, windows_data, weights, template_file,
     # Get the off-pulse window
     offpulsewindow: ndarray[Any, dtype[Any]] = np.linspace(windows_data[0, 0], windows_data[0, 1],
                                  num=windows_data[0, 1] - windows_data[0, 0] + 1).astype(int)
+
+
+   # Calculate 1/sigma2 for each single pulse
+    sigma2 = normalize(np.power(rms_array, -2), axis=0)
+
+    # IF THE WEIGHTS HAVE NOT ALREADY BEEN FLAGGED AS ZERO, assign a weight equal to 1/sigma2 to each single pulse
+    for indexes in np.argewhere(weights > 0.0):
+        weights[indexes[0], indexes[1]] = sigma2[indexes[0], indexes[1]]
 
     # Iterate over the files
     last_index: int = 0
