@@ -126,13 +126,13 @@ def to_binary_and_calculate_rms(files, out_dir, n_sp, bandpass=None, shift: int 
 
         ar.dedisperse()  # Dedisperse
 
-        # Save the weights
-        total_weights[last_index:new_index, :] = ar.getWeights()
-
         # Save the times
         new_index = ar.getNsubint() + last_index
         data_times = ar.getTimes() + time  # We add the time at the end of the previous observation
         total_times[last_index:new_index] = data_times
+
+        # Save the weights
+        total_weights[last_index:new_index, :] = ar.getWeights()
 
         # Center the main pulse peak
         rolled = np.roll(ar.getData(), shift, axis=2)
