@@ -121,7 +121,7 @@ if __name__ == '__main__':
         np.save(weights_file, weights)
     else:
         weights = np.load(weights_file)
-
+    sys.exit()
     # Inject different levels of noise
     for noise_factor in [0.0]:
 
