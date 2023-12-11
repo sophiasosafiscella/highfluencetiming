@@ -145,7 +145,7 @@ def to_binary_and_calculate_rms(files, out_dir: str, n_sp: int, bandpass=None, s
         np.save(out_dir + file[-35:-3] + ".npy", rolled_data[:, bandpass[0]: bandpass[1], :])
 
         # Calculate the off-pulse RMS noise
-        rms_values[last_index:new_index, :] = np.std(rolled_data[:, bandpass[0]: bandpass[1], opw])
+        rms_values[last_index:new_index, :] = np.std(rolled_data[:, bandpass[0]: bandpass[1], opw], axis=2)
 
         # Update the times
         time += ar.getDuration()

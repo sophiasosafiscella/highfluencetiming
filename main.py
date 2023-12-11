@@ -97,7 +97,7 @@ if __name__ == '__main__':
             files = sorted(glob.glob(pulses_dir + "*_cleaned.*ar"))
 
     #   4) Convert the observations to binary and weight them according to the off-pulse noise RMS
-    if len(glob.glob(binary_out_dir + "*J2145*npy")) < len(files):
+    if len(glob.glob(binary_out_dir + "*J2145*npy")) <= len(files):
         print("Converting the observation to binary files...")
         times_data, channels_data, rms_array, basic_weights = to_binary_and_calculate_rms(files, binary_out_dir, sp_total, bandpass)
         np.save(times_file, times_data)
