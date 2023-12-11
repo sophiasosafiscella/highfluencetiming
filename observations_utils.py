@@ -94,7 +94,7 @@ def to_binary(files, out_dir, sp_total, bandpass=None, shift: int = -220):
     return total_times, channels
 
 
-def to_binary_and_calculate_rms(files, out_dir, n_sp, bandpass=None, shift: int = -220):
+def to_binary_and_calculate_rms(files, out_dir: str, n_sp: int, bandpass=None, shift: int = -220):
 
     # If a pair of values was provided to restrict the bandwidth, then multiply the second value by -1
     # in order to remove that many channels at the lower end of the bandwidth
@@ -103,10 +103,12 @@ def to_binary_and_calculate_rms(files, out_dir, n_sp, bandpass=None, shift: int 
     else:
         bandpass[1] *= -1
 
+    # Save the times of the sub-integrations
     total_times = np.zeros(n_sp)
     time: float = 0.0
     last_index: int = 0
 
+    # Extract the frequencies of the channels
     channels = pyp.Archive(files[0], prepare=False, center_pulse=False, baseline_removal=False,
                          lowmem=True, verbose=False).getAxis(flag="F", edges=True)[bandpass[0]: bandpass[1]]
 
@@ -124,25 +126,26 @@ def to_binary_and_calculate_rms(files, out_dir, n_sp, bandpass=None, shift: int 
         ar = pyp.Archive(file, prepare=False, center_pulse=False, baseline_removal=False,
                          lowmem=True, verbose=False)
 
-        ar.dedisperse()  # Dedisperse
+        ar.dedisperse()  # De-disperse
 
         # Save the times
         new_index = ar.getNsubint() + last_index
-        data_times = ar.getTimes() + time  # We add the time at the end of the previous observation
+        data_times = ar.getTimes() + time               # We add the time at the end of the previous observation
         total_times[last_index:new_index] = data_times
 
         # Save the weights
         total_weights[last_index:new_index, :] = ar.getWeights()
 
         # Center the main pulse peak
-        rolled = np.roll(ar.getData(), shift, axis=2)
-        rolled -= np.average(np.average(np.average(rolled, axis=1), axis=0)[opw])   # Subtract the baseline
+        rolled_data = np.roll(ar.getData(), shift, axis=2)
+        rolled_data -= np.average(np.average(np.average(rolled_data, axis=1), axis=0)[opw])   # Subtract the baseline
 
+        # Save the observation (without the weights) as a binary file
         # Sometimes we don't want to use the channels at the edges. In that case we restrict the bandpass.
-        np.save(out_dir + file[-35:-3] + ".npy", rolled[:, bandpass[0]: bandpass[1], :])
+        np.save(out_dir + file[-35:-3] + ".npy", rolled_data[:, bandpass[0]: bandpass[1], :])
 
         # Calculate the off-pulse RMS noise
-        rms_values[last_index:new_index, :] = np.std(rolled[:, bandpass[0]: bandpass[1], opw])
+        rms_values[last_index:new_index, :] = np.std(rolled_data[:, bandpass[0]: bandpass[1], opw])
 
         # Update the times
         time += ar.getDuration()

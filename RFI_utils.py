@@ -205,14 +205,14 @@ def remove_RFIs(files, binary_files, windows_data, weights, rms_array, template_
 
     # Get the off-pulse window
     offpulsewindow: ndarray[Any, dtype[Any]] = np.linspace(windows_data[0, 0], windows_data[0, 1],
-                                 num=windows_data[0, 1] - windows_data[0, 0] + 1).astype(int)
+                                 num=(windows_data[0, 1] - windows_data[0, 0] + 1).astype(int))
 
 
    # Calculate 1/sigma2 for each single pulse
     sigma2 = normalize(np.power(rms_array, -2), axis=0)
 
     # IF THE WEIGHTS HAVE NOT ALREADY BEEN FLAGGED AS ZERO, assign a weight equal to 1/sigma2 to each single pulse
-    for indexes in np.argewhere(weights > 0.0):
+    for indexes in np.argwhere(weights > 0.0):
         weights[indexes[0], indexes[1]] = sigma2[indexes[0], indexes[1]]
 
     # Iterate over the files
@@ -220,9 +220,8 @@ def remove_RFIs(files, binary_files, windows_data, weights, rms_array, template_
     for n, binary_file in tqdm(enumerate(binary_files)):
 
         data = np.load(binary_file)
-        Nsubint, Nchan, Nbin = np.shape(data)
 
-        new_index = Nsubint + last_index
+        new_index = np.shape(data)[0] + last_index
 
         if clfd_ok:
             weights[last_index: new_index, :] = clfd(files[n], weights[last_index: new_index, :])

@@ -103,7 +103,7 @@ if __name__ == '__main__':
         np.save(times_file, times_data)
         np.save(channels_file, channels_data)
         np.save(rms_data_file, rms_array)
-        np.save(weights_file, basic_weights_file)
+        np.save(weights_file, basic_weights)
     else:
         times_data = np.load(times_file)
         channels_data = np.load(channels_file)
