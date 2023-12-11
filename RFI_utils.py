@@ -212,7 +212,7 @@ def remove_RFIs(files, binary_files, windows_data, weights, rms_array, template_
     sigma2 = normalize(np.power(rms_array, -2), axis=0)
 
     # IF THE WEIGHTS HAVE NOT ALREADY BEEN FLAGGED AS ZERO, assign a weight equal to 1/sigma2 to each single pulse
-    for indexes in np.argewhere(weights > 0.0):
+    for indexes in np.argwhere(weights > 0.0):
         weights[indexes[0], indexes[1]] = sigma2[indexes[0], indexes[1]]
 
     # Iterate over the files
