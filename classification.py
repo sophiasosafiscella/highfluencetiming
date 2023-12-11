@@ -160,10 +160,6 @@ def meanshift_classifier(org_features):
 def time_clusters(n_clusters, results_dir_2, clustered_data, unnormalized_data, bin_to_musec, first_file,
                   plot_clusters=True):
 
-#    print(unnormalized_data.to_numpy())
-#    print(clustered_data.to_numpy())
-#    sys.exit()
-
     clusters_toas = pd.DataFrame(columns=['TOA', 'sigma_TOA', '1/sigma^2'], index=list(range(n_clusters)))
 
     ar = pyp.Archive(first_file, verbose=False)
@@ -179,22 +175,12 @@ def time_clusters(n_clusters, results_dir_2, clustered_data, unnormalized_data, 
         # Calculate the cluster average pulse
         cluster_average_pulse = np.average(cluster_pulses.to_numpy(), axis=0)
         ar.data = np.copy(cluster_average_pulse)
-        plt.close()
-        plt.plot(ar.data)
-        plt.tight_layout()
-        plt.savefig("./average_figure.png")
-        plt.show()
-#        print(ar.data)
-#        sys.exit()
+
         # Create a template for this cluster by smoothing the cluster average pulse
         cluster_avg_sp = pyp.SinglePulse(cluster_average_pulse, opw=np.arange(0, 100))
         cluster_avg_sp.remove_baseline(save=True)
         smoothed_cluster = cluster_avg_sp.component_fitting()
-        plt.close()
-        plt.plot(smoothed_cluster)
-        plt.savefig("./smoothed_figure.png")
-        plt.show()
-        sys.exit()
+
         # If the cluster average pulse is all negative, then component_fitting will return a float
         # instead of an array. In that case, we assign this cluster a weight of zero because it's not useful.
         if isinstance(smoothed_cluster, float):
@@ -234,8 +220,7 @@ def time_clusters(n_clusters, results_dir_2, clustered_data, unnormalized_data, 
             # Calculate the cluster average TOA and TOA error
             clusters_toas.loc[cluster_index, "TOA":"sigma_TOA"] = (
                     ar.fitPulses(smoothed_cluster_sp, nums=[1, 3]) * bin_to_musec)
-            print(clusters_toas.loc[cluster_index, "TOA":"sigma_TOA"])
-            sys.exit()
+
             # Calculate the weight associated to each TOA error
             clusters_toas.loc[cluster_index, "1/sigma^2"] = (clusters_toas.loc[cluster_index, "sigma_TOA"]) ** (-2)
 

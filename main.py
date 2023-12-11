@@ -211,9 +211,6 @@ if __name__ == '__main__':
                 clusters_toas.to_pickle(k_clusters_results)
 
 
-                print(clusters_toas["TOA"].to_numpy())
-                print(clusters_toas["1/sigma^2"].to_numpy())
-                sys.exit()
                 # Save the results to the general results dataframe
                 results.loc[k, 'TOA':'sigma_TOA'] = np.asarray(
                     weighted_moments(series=clusters_toas["TOA"].to_numpy(),
