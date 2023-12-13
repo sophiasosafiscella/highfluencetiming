@@ -21,9 +21,9 @@ import os
 if __name__ == '__main__':
 
     #   0) Get the file names
-    band: str = "L_band"
+    band: str = "820_band"
     classifier: str = "Kmeans"        # Options: "Kmeans", "MeanShift", or "AffinityPropagation"
-    results_dir: str = "./results/" + band + "_meerguard_clfd_maskRFI_zap/"  # Directory with the results
+    results_dir: str = "./results/" + band + "/"  # Directory with the results
     pulses_dir: str = "./data/" + band + "/"
 
     if band == "L_band":
@@ -36,10 +36,10 @@ if __name__ == '__main__':
     plot_clusters: bool = True  # Plot the single pulses in the cluster_sp_times
     time_sp: bool = False
 
-    meerguard_ok: bool = True     # Clean using MeerGuard?
-    clfd_ok: bool = True          # Clean using clfd?
-    mask_RFI_ok: bool = True      # Clean using mask_RFI?
-    zap_minmax_ok: bool = True    # Clean using zap_minmax?
+    meerguard_ok: bool = True      # Clean using MeerGuard?
+    clfd_ok: bool = True           # Clean using clfd?
+    mask_RFI_ok: bool = False      # Clean using mask_RFI?
+    zap_minmax_ok: bool = False    # Clean using zap_minmax?
     chisq_filter_ok: bool = False   # Clean using chisq_filter?
     opw_peaks_ok: bool = False     # Clean using opw_peaks?
 
@@ -88,22 +88,24 @@ if __name__ == '__main__':
     #   3) Clean the observations using MeerGuard
     if meerguard_ok:
 
+        # If we haven't cleaned using MeerGuard yet, do it
         if len(glob.glob(pulses_dir + "*_cleaned.ar")) < len(files):
             files = meerguard(files, pulses_dir, band, template_file)
 
+        # If we have cleaned already, load the cleaned files
         if band == "L_band":
             files = sorted(glob.glob(pulses_dir + "*_cleaned.ar"))  # Files containing the observations
         elif band == "820_band":
             files = sorted(glob.glob(pulses_dir + "*_cleaned.*ar"))
 
     #   4) Convert the observations to binary and weight them according to the off-pulse noise RMS
-    if len(glob.glob(binary_out_dir + "*J2145*npy")) <= len(files):
+    if len(glob.glob(binary_out_dir + "*J2145*npy")) < len(files) or len(glob.glob(basic_weights_file)) == 0:
         print("Converting the observation to binary files...")
         times_data, channels_data, rms_array, basic_weights = to_binary_and_calculate_rms(files, binary_out_dir, sp_total, bandpass)
         np.save(times_file, times_data)
         np.save(channels_file, channels_data)
         np.save(rms_data_file, rms_array)
-        np.save(weights_file, basic_weights)
+        np.save(basic_weights_file, basic_weights)
     else:
         times_data = np.load(times_file)
         channels_data = np.load(channels_file)
@@ -123,9 +125,13 @@ if __name__ == '__main__':
         weights = np.load(weights_file)
 
     # Inject different levels of noise
-    for noise_factor in [0.0]:
+    for noise_factor in [0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5]:
 
+        # Create a folder to dump the results of this amount of noise
         results_dir_2 = results_dir + str(noise_factor) + "_sigma/"
+        if not os.path.isdir(results_dir_2):
+            os.makedirs(results_dir_2)
+
         merged_file: str = results_dir_2 + "unnormalized_data.pkl"
         merged_normalized_file: str = results_dir_2 + "normalized_data.pkl"
         features_file: str = results_dir_2 + "features.pkl"
@@ -177,9 +183,8 @@ if __name__ == '__main__':
         else:
             org_features = pd.read_pickle(features_file)
 
-
-        results_dir_3 = results_dir_2 + classifier + "/"
         # Create a folder to dump the results of this classifier
+        results_dir_3 = results_dir_2 + classifier + "/"
         if not os.path.isdir(results_dir_3):
             os.makedirs(results_dir_3)
 
