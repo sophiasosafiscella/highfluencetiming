@@ -87,7 +87,7 @@ def zap_minmax(data, weights, opw, windowsize=20, threshold=4.0):
     return weights
 
 
-def mask_RFI(data, weights, window_data, factor=6.0):
+def mask_RFI(data, weights, window_data, factor=4.0):
 
     Nsubint, Nchan, Nbin = np.shape(data)
 
@@ -100,7 +100,7 @@ def mask_RFI(data, weights, window_data, factor=6.0):
     # FALSE MEANS THAT THERE IS NO RFIs
     # TRUE MEANS THAT THERE IS AN RFI
     RFI_mask = (
-            data[:, :, np.r_[0:window_data[1, 0], window_data[1, 0]:Nbin]] > threshold).any(
+            np.abs(data[:, :, np.r_[0:window_data[1, 0], window_data[1, 0]:Nbin]]) > threshold).any(
         axis=2) # The any(axis=2) is to check where this condition became true along the phase bins axis for a given single pulse
 
     # Flag all the null single pulses
