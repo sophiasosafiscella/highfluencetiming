@@ -21,9 +21,9 @@ import os
 if __name__ == '__main__':
 
     #   0) Get the file names
-    band: str = "L_band"
+    band: str = "820_band"
     classifier: str = "Kmeans"        # Options: "Kmeans", "MeanShift", or "AffinityPropagation"
-    results_dir: str = "./results/" + band + "/"  # Directory with the results
+    results_dir: str = "./results/" + band + "_meerguard_clfd/"  # Directory with the results
     pulses_dir: str = "./data/" + band + "/"
 
     if band == "L_band":
@@ -36,8 +36,8 @@ if __name__ == '__main__':
     plot_clusters: bool = True  # Plot the single pulses in the cluster_sp_times
     time_sp: bool = False
 
-    meerguard_ok: bool = True      # Clean using MeerGuard?
-    clfd_ok: bool = False          # Clean using clfd?
+    meerguard_ok: bool = True     # Clean using MeerGuard?
+    clfd_ok: bool = True          # Clean using clfd?
     mask_RFI_ok: bool = False      # Clean using mask_RFI?
     zap_minmax_ok: bool = False    # Clean using zap_minmax?
     chisq_filter_ok: bool = False   # Clean using chisq_filter?
@@ -97,7 +97,7 @@ if __name__ == '__main__':
             files = sorted(glob.glob(pulses_dir + "*_cleaned.*ar"))
 
     #   4) Convert the observations to binary and weight them according to the off-pulse noise RMS
-    if len(glob.glob(binary_out_dir + "*J2145*npy")) < len(files):
+    if len(glob.glob(binary_out_dir + "*J2145*npy")) <= len(files):
         print("Converting the observation to binary files...")
         times_data, channels_data, rms_array, basic_weights = to_binary_and_calculate_rms(files, binary_out_dir, sp_total, bandpass)
         np.save(times_file, times_data)

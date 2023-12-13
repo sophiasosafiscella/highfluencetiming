@@ -142,7 +142,7 @@ def to_binary_and_calculate_rms(files, out_dir: str, n_sp: int, bandpass=None, s
 
         # Save the observation (without the weights) as a binary file
         # Sometimes we don't want to use the channels at the edges. In that case we restrict the bandpass.
-        np.save(out_dir + file[-35:-3] + ".npy", rolled_data[:, bandpass[0]: bandpass[1], :])
+#        np.save(out_dir + file[-35:-3] + ".npy", rolled_data[:, bandpass[0]: bandpass[1], :])
 
         # Calculate the off-pulse RMS noise
         rms_values[last_index:new_index, :] = np.std(rolled_data[:, bandpass[0]: bandpass[1], opw], axis=2)

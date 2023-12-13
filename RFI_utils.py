@@ -205,7 +205,7 @@ def remove_RFIs(files, binary_files, windows_data, original_weights, rms_array, 
 
     # Get the off-pulse window
     offpulsewindow: ndarray[Any, dtype[Any]] = np.linspace(windows_data[0, 0], windows_data[0, 1],
-                                 num=(windows_data[0, 1] - windows_data[0, 0] + 1).astype(int))
+                                 num=(windows_data[0, 1] - windows_data[0, 0] + 1)).astype(int)
 
 
     # Assume all the weights are zero
