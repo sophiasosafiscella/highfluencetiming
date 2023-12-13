@@ -21,9 +21,9 @@ import os
 if __name__ == '__main__':
 
     #   0) Get the file names
-    band: str = "820_band"
+    band: str = "L_band"
     classifier: str = "Kmeans"        # Options: "Kmeans", "MeanShift", or "AffinityPropagation"
-    results_dir: str = "./results/" + band + "_meerguard_clfd/"  # Directory with the results
+    results_dir: str = "./results/" + band + "_meerguard_clfd_maskRFI_zap/"  # Directory with the results
     pulses_dir: str = "./data/" + band + "/"
 
     if band == "L_band":
@@ -38,8 +38,8 @@ if __name__ == '__main__':
 
     meerguard_ok: bool = True     # Clean using MeerGuard?
     clfd_ok: bool = True          # Clean using clfd?
-    mask_RFI_ok: bool = False      # Clean using mask_RFI?
-    zap_minmax_ok: bool = False    # Clean using zap_minmax?
+    mask_RFI_ok: bool = True      # Clean using mask_RFI?
+    zap_minmax_ok: bool = True    # Clean using zap_minmax?
     chisq_filter_ok: bool = False   # Clean using chisq_filter?
     opw_peaks_ok: bool = False     # Clean using opw_peaks?
 
