@@ -23,7 +23,7 @@ if __name__ == '__main__':
     #   0) Get the file names
     band: str = "820_band"
     classifier: str = "Kmeans"        # Options: "Kmeans", "MeanShift", or "AffinityPropagation"
-    results_dir: str = "./results/" + band + "/"  # Directory with the results
+    results_dir: str = "./results/" + band + "_test/"  # Directory with the results
     pulses_dir: str = "./data/" + band + "/"
 
     if band == "L_band":
@@ -99,7 +99,7 @@ if __name__ == '__main__':
             files = sorted(glob.glob(pulses_dir + "*_cleaned.*ar"))
 
     #   4) Convert the observations to binary and weight them according to the off-pulse noise RMS
-    if len(glob.glob(binary_out_dir + "*J2145*npy")) < len(files) or len(glob.glob(basic_weights_file)) == 0:
+    if len(glob.glob(binary_out_dir + "*J2145*npy")) < len(files) and len(glob.glob(basic_weights_file)) == 0:
         print("Converting the observation to binary files...")
         times_data, channels_data, rms_array, basic_weights = to_binary_and_calculate_rms(files, binary_out_dir, sp_total, bandpass)
         np.save(times_file, times_data)
@@ -125,7 +125,7 @@ if __name__ == '__main__':
         weights = np.load(weights_file)
 
     # Inject different levels of noise
-    for noise_factor in [0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5]:
+    for noise_factor in [0.0]:
 
         # Create a folder to dump the results of this amount of noise
         results_dir_2 = results_dir + str(noise_factor) + "_sigma/"
