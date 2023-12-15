@@ -123,7 +123,7 @@ def to_binary_and_calculate_rms(files, out_dir: str, n_sp: int, bandpass=None, s
     for file in tqdm(files):
 
         # Load the observation to PyPulse
-        ar = pyp.Archive(file, prepare=False, center_pulse=False, baseline_removal=False,
+        ar = pyp.Archive(file, prepare=False, center_pulse=False, baseline_removal=True,
                          lowmem=True, verbose=False)
 
         ar.dedisperse()  # De-disperse
@@ -138,7 +138,9 @@ def to_binary_and_calculate_rms(files, out_dir: str, n_sp: int, bandpass=None, s
 
         # Center the main pulse peak
         rolled_data = np.roll(ar.getData(), shift, axis=2)
-        rolled_data -= np.average(np.average(np.average(rolled_data, axis=1), axis=0)[opw])   # Subtract the baseline
+
+        # Substract the baseline
+#        rolled_data -= np.average(np.average(np.average(rolled_data, axis=1), axis=0)[opw])   # Subtract the baseline
 
         # Save the observation (without the weights) as a binary file
         # Sometimes we don't want to use the channels at the edges. In that case we restrict the bandpass.
