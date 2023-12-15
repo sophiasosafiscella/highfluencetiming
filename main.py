@@ -23,7 +23,7 @@ if __name__ == '__main__':
     #   0) Get the file names
     band: str = "820_band"
     classifier: str = "Kmeans"        # Options: "Kmeans", "MeanShift", or "AffinityPropagation"
-    results_dir: str = "./results/" + band + "_test/"  # Directory with the results
+    results_dir: str = "./results/" + band + "_remove_baseline/"  # Directory with the results
     pulses_dir: str = "./data/" + band + "/"
 
     if band == "L_band":
