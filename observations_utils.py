@@ -109,7 +109,7 @@ def to_binary_and_calculate_rms(files, out_dir: str, n_sp: int, bandpass=None, s
     last_index: int = 0
 
     # Extract the frequencies of the channels
-    channels = pyp.Archive(files[0], prepare=False, center_pulse=False, baseline_removal=True,
+    channels = pyp.Archive(files[0], prepare=False, center_pulse=False, baseline_removal=False,
                          lowmem=True, verbose=False).getAxis(flag="F", edges=True)[bandpass[0]: bandpass[1]]
 
     # Create an array to store the RMS values
@@ -123,7 +123,7 @@ def to_binary_and_calculate_rms(files, out_dir: str, n_sp: int, bandpass=None, s
     for file in tqdm(files):
 
         # Load the observation to PyPulse
-        ar = pyp.Archive(file, prepare=False, center_pulse=False, baseline_removal=True,
+        ar = pyp.Archive(file, prepare=False, center_pulse=False, baseline_removal=False,
                          lowmem=True, verbose=False)
 
         ar.dedisperse()  # De-disperse
@@ -139,8 +139,10 @@ def to_binary_and_calculate_rms(files, out_dir: str, n_sp: int, bandpass=None, s
         # Center the main pulse peak
         rolled_data = np.roll(ar.getData(), shift, axis=2)
 
-        # Substract the baseline
-#        rolled_data -= np.average(np.average(np.average(rolled_data, axis=1), axis=0)[opw])   # Subtract the baseline
+        # Substract the baseline. I totally stole this from github.com/mtlam/PyPulse/blob/master/pypulse/archive.py#L896
+        baseline = np.mean(rolled_data[..., opw], axis=-1)
+        rolled_data -= baseline[..., np.newaxis]
+        #        rolled_data -= np.average(np.average(np.average(rolled_data, axis=1), axis=0)[opw])   # Subtract the baseline
 
         # Save the observation (without the weights) as a binary file
         # Sometimes we don't want to use the channels at the edges. In that case we restrict the bandpass.
