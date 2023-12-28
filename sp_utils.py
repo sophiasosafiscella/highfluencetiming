@@ -138,7 +138,7 @@ def find_windows(template_file: str,  # name of the template file
                  plot=False):
     # find the peak of the template
     template = pypulse.Archive(template_file)
-    template.bscrunch(factor=bscrunching_factor)
+#    template.bscrunch(factor=bscrunching_factor)
     template_data = template.getData()
     template_peak_pos = np.argmax(template_data)
     offpulse = pypulse.SinglePulse(template_data, windowsize=int(template.getNbin() // 8)).calcOffpulseWindow()

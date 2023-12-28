@@ -23,7 +23,7 @@ if __name__ == '__main__':
     #   0) Get the file names
     band: str = "820_band"
     classifier: str = "Kmeans"        # Options: "Kmeans", "MeanShift", or "AffinityPropagation"
-    results_dir: str = "./results/" + band + "_clfd/"  # Directory with the results
+    results_dir: str = "./results/" + band + "_no_clean/"  # Directory with the results
     pulses_dir: str = "./data/" + band + "/"
 
     if band == "L_band":
@@ -37,7 +37,7 @@ if __name__ == '__main__':
     time_sp: bool = False
 
     meerguard_ok: bool = False      # Clean using MeerGuard?
-    clfd_ok: bool = True           # Clean using clfd?
+    clfd_ok: bool = False          # Clean using clfd?
     mask_RFI_ok: bool = False      # Clean using mask_RFI?
     zap_minmax_ok: bool = False    # Clean using zap_minmax?
     chisq_filter_ok: bool = False   # Clean using chisq_filter?
