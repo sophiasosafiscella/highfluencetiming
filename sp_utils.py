@@ -333,10 +333,10 @@ def get_params(data_file, windows, results_dir, plot=False):
 
     #    peak_pos = np.argmax(window_data, axis=1)   # position of the peak in each single pulse
 
-    lse_peak_amp = np.zeros((n_pulses))
-    lse_pos = np.zeros((n_pulses))
-    lse_width = np.zeros((n_pulses))
-    lse_energy = np.zeros((n_pulses))
+    lse_peak_amp = np.full((n_pulses), np.nan)
+    lse_pos = np.full((n_pulses), np.nan)
+    lse_width = np.full((n_pulses), np.nan)
+    lse_energy = np.full((n_pulses), np.nan)
 
     for i in tqdm(range(n_pulses)):
         # windows[0:0] and windows[0:1] are the left and right edges

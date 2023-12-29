@@ -139,7 +139,7 @@ def to_binary_and_calculate_rms(files, out_dir: str, n_sp: int, bandpass=None, s
         # Center the main pulse peak
         rolled_data = np.roll(ar.getData(), shift, axis=2)
 
-        # Substract the baseline. I totally stole this from github.com/mtlam/PyPulse/blob/master/pypulse/archive.py#L896
+        # Subtract the baseline. I totally stole this from github.com/mtlam/PyPulse/blob/master/pypulse/archive.py#L896
         baseline = np.mean(rolled_data[..., opw], axis=-1)
         rolled_data -= baseline[..., np.newaxis]
         #        rolled_data -= np.average(np.average(np.average(rolled_data, axis=1), axis=0)[opw])   # Subtract the baseline
