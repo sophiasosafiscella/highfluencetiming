@@ -362,4 +362,5 @@ def get_params(data_file, windows, results_dir, plot=False):
     #    org_features = np.vstack((lse_pos, lse_width, lse_peak_amp, lse_energy)).T
     #    features = StandardScaler().fit_transform(org_features)
 
-    return org_features
+    # Drop the rows where the width is 0.0
+    return org_features.loc[~((org_features['Width'] == 0.0))]
