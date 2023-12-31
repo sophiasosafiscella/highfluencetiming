@@ -11,6 +11,7 @@ dirs = ["0.0_sigma", "0.5_sigma", "1.0_sigma", "1.5_sigma", "2.0_sigma", "2.5_si
 
 fig = plt.figure()
 fig, axs = plt.subplots(4, 2, gridspec_kw = {'wspace':0, 'hspace':0}, sharex=True, sharey=True)
+axs = axs.flatten()
 
 for i, dir_name in enumerate(dirs):
 
