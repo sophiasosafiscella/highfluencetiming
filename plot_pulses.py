@@ -11,16 +11,18 @@ dirs = ["0.0_sigma", "0.5_sigma", "1.0_sigma", "1.5_sigma", "2.0_sigma", "2.5_si
 
 fig, axs = plt.subplots(4, 2, figsize=(8, 10),
                         gridspec_kw = {'wspace':0, 'hspace':0}, sharex=True, sharey=True)
-axs = axs.flatten()
 
-plt.xlabel("Phase Bins")
-plt.ylabel("Intensity")
+# set labels
+plt.setp(axs[-1, :], xlabel='Phase Bins')
+plt.setp(axs[:, 0], ylabel='Intensity')
+
+axs = axs.flatten()
 
 for i, dir_name in enumerate(dirs):
 
     data = pd.read_pickle("./results/820_band/" + dir_name + "/unnormalized_data.pkl")
     axs[i].plot(data.iloc[14].to_numpy())
-    axs[i].text(0.5, 0.9, dir_name[:3] + " $\\sigma_{\\mathrm{med}}$",
+    axs[i].text(0.5, 0.95, dir_name[:3] + " $\\sigma_{\\mathrm{med}}$",
                 horizontalalignment='center', verticalalignment='center', transform=axs[i].transAxes)
 
 plt.tight_layout()
