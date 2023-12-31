@@ -10,7 +10,7 @@ sns.set_context("paper", font_scale = 1.5)
 dirs = ["0.0_sigma", "0.5_sigma", "1.0_sigma", "1.5_sigma", "2.0_sigma", "2.5_sigma", "3.0_sigma", "3.5_sigma"]
 
 fig = plt.figure()
-fig, axs = plt.subplots(4, 2, hspace=0, wspace=0, sharex=True, sharey=True)
+fig, axs = plt.subplots(4, 2, gridspec_kw = {'wspace':0, 'hspace':0}, sharex=True, sharey=True)
 
 for i, dir_name in enumerate(dirs):
 
