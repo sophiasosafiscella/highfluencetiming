@@ -17,11 +17,11 @@ for n, fits_file in tqdm(enumerate(fits_files)):
 	new_fits_file: str = fits_file[:-5] + "_rficleaned.fil"
 
 	# Convert the .fits files to SIGPROC filterbank format files
-	subprocess.run("./digifil -b 8 -d 1 -o" + fil_file + " " + fits_file)
+	subprocess.run("./digifil -b 8 -d 1 -o" + fil_file + " " + fits_file, shell=True)
 
 	# Clean using RFIClean
 	subprocess.run("./rficlean -t " + str(block_size) + " -psrf " + str(F0) + " -psrfbins " + str(psrfbins) +
-	               " -o " + cleaned_file + fil_file)
+	               " -o " + cleaned_file + fil_file, shell=True)
 
 	# Convert back to PSRFits using Your
 	fil_file = your.Your(cleaned_file)
