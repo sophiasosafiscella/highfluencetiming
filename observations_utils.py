@@ -20,7 +20,7 @@ def count_sp(files):
 
 
 def create_ds(template, low_res_file, band):
-    # Load the low-res file
+    # Load the low-res fits_file
     low_res_object = pyp.Archive(low_res_file, verbose=False)
 
     # Load the template
@@ -28,7 +28,7 @@ def create_ds(template, low_res_file, band):
     if template_object.getNbin() != low_res_object.getNbin():
         template_object.bscrunch(factor=int(template_object.getNbin() / low_res_object.getNbin()))
 
-    # tscrunch the low resolution file
+    # tscrunch the low resolution fits_file
     if band == "L_band":
         low_res_object.tscrunch(factor=8)
     elif band == "820_band":
@@ -144,7 +144,7 @@ def to_binary_and_calculate_rms(files, out_dir: str, n_sp: int, bandpass=None, s
         rolled_data -= baseline[..., np.newaxis]
         #        rolled_data -= np.average(np.average(np.average(rolled_data, axis=1), axis=0)[opw])   # Subtract the baseline
 
-        # Save the observation (without the weights) as a binary file
+        # Save the observation (without the weights) as a binary fits_file
         # Sometimes we don't want to use the channels at the edges. In that case we restrict the bandpass.
         np.save(out_dir + file[-35:-3] + ".npy", rolled_data[:, bandpass[0]: bandpass[1], :])
 

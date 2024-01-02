@@ -61,7 +61,7 @@ def DBSCAN_cluster(file, windows, org_features, r, samples):
 #    window_left = windows[0, 0]
 #    window_right = windows[0, 1]
 
-#    pulses_data = np.load(file)
+#    pulses_data = np.load(fits_file)
 #    window_data = pulses_data[:, window_left:window_right]
 
 #    avg_wind_data = np.mean(window_data, axis=0)
@@ -133,7 +133,7 @@ def kmeans_classifier(org_features, k, plot=False):
     org_features['Cluster'] = y_pred.astype(int)
     org_features['Cluster'] = org_features['Cluster'].astype(str)
 
-#    np.save(file[10:-6] + '_kmeans_clusters.npy', np.concatenate((org_features, y_pred.reshape(-1, 1)), axis=1))
+#    np.save(fits_file[10:-6] + '_kmeans_clusters.npy', np.concatenate((org_features, y_pred.reshape(-1, 1)), axis=1))
 
     return org_features
 

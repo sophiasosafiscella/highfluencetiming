@@ -9,7 +9,7 @@ from RFI_utils import zap_minmax, mask_RFI, chisq_filter, opw_peaks
 
 
 def create_ds(template, low_res_file, band):
-    # Load the low-res file
+    # Load the low-res fits_file
     low_res_object = pyp.Archive(low_res_file, verbose=False)
 
     # Load the template
@@ -17,7 +17,7 @@ def create_ds(template, low_res_file, band):
     if template_object.getNbin() != low_res_object.getNbin():
         template_object.bscrunch(factor=int(template_object.getNbin() / low_res_object.getNbin()))
 
-    # tscrunch the low resolution file
+    # tscrunch the low resolution fits_file
     if band == "L_band":
         low_res_object.tscrunch(factor=8)
     elif band == "820_band":
@@ -46,7 +46,7 @@ def old_create_ds(template, files):
         template_object.bscrunch(factor=4)
     template_data = template_object.getData()
 
-    n_sp, n_chan, n_bins = pyp.Archive(files[0], verbose=False).shape()  # Number of single pulses per file
+    n_sp, n_chan, n_bins = pyp.Archive(files[0], verbose=False).shape()  # Number of single pulses per fits_file
     #    files_per_group = ceil((60.0/ template_object.getPeriod()) / n_sp)  # Number of files per group
     #    number_groups = ceil(len(files) / files_per_group)
 
@@ -63,8 +63,8 @@ def old_create_ds(template, files):
         #        group_pulses = np.zeros((n_chan, files_per_group, n_bins))
         #        group_weights = np.zeros((n_chan, files_per_group))
 
-        #        for n, file in enumerate(files[group_n: group_n + files_per_group]):
-        ar = pyp.Archive(file, verbose=False)  # Open the file using PyPulse
+        #        for n, fits_file in enumerate(files[group_n: group_n + files_per_group]):
+        ar = pyp.Archive(file, verbose=False)  # Open the fits_file using PyPulse
 
         #       if n == files_per_group-1:
         time += ar.getDuration()  # take the time at the end of the observation
@@ -180,7 +180,7 @@ def merge_and_normalize(ds, files, window_data, sp_total, noise_rms):
             #            if np.isnan(normalized_data[last_index + i, :]).any():
             #                print("NaN created at k= " + str(k))
             #                print("i = " + str(i))
-            #                print(file)
+            #                print(fits_file)
             #                print(normalized_data[last_index + i, :])
             #                sys.exit()
 

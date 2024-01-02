@@ -129,7 +129,7 @@ def find_energy_windows(template_data, window_factor, bins_factor: float, plot):
     return np.rint(np.divide(energy_margins, bins_factor)).astype(int)
 
 
-def find_windows(template_file: str,  # name of the template file
+def find_windows(template_file: str,  # name of the template fits_file
                  pulses_directory: str,  # directory containing the single pulses
                  results_dir: str,  # Directory with the clusters_toas
                  window_percentage: float,  # percentage of the window we'll use for the main peak window

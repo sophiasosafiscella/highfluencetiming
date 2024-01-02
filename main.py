@@ -15,12 +15,12 @@ from RFI_utils import remove_RFIs, meerguard
 import os
 
 # IMPORTANT: we're assuming that the observations has already been processed
-#            with 512 phase bins and 128 single pulses per file
+#            with 512 phase bins and 128 single pulses per fits_file
 # data shape = (128, 512) = 128 rows x 512 columns = 128 pulses x 512 bins
 
 if __name__ == '__main__':
 
-    #   0) Get the file names
+    #   0) Get the fits_file names
     band: str = "820_band"
     classifier: str = "Kmeans"        # Options: "Kmeans", "MeanShift", or "AffinityPropagation"
     results_dir: str = "./results/" + band + "/"  # Directory with the results
@@ -31,7 +31,7 @@ if __name__ == '__main__':
     elif band == "820_band":
         files = sorted(glob.glob(pulses_dir + "GUPPI*ar"))[:1693]
 
-    low_res_file = glob.glob(pulses_dir + "low_res/low*pF*")[0]  # Low-resolution file to create the dynamic spectrum
+    low_res_file = glob.glob(pulses_dir + "low_res/low*pF*")[0]  # Low-resolution fits_file to create the dynamic spectrum
     template_file = glob.glob(pulses_dir +"*sm")[0]  # Files containing the template
     plot_clusters: bool = True  # Plot the single pulses in the cluster_sp_times
     time_sp: bool = False
@@ -211,7 +211,7 @@ if __name__ == '__main__':
                 clusters_toas = classification.time_clusters(k, results_dir_3 + str(k) + "_clusters", clustered_data,
                                                                  unnormalized_data, bin_to_musec, files[0])
 
-                # Save the results for this number of cluster to an output file
+                # Save the results for this number of cluster to an output fits_file
                 k_clusters_results: str = results_dir_3 + str(k) + "_clusters/" + str(k) + "_clusters_results.plk"
                 clusters_toas.to_pickle(k_clusters_results)
 
