@@ -7,7 +7,7 @@ import pypulse as pyp
 import sys
 
 from sklearn.preprocessing import StandardScaler
-from sklearn.cluster import AffinityPropagation, KMeans, MeanShift
+from sklearn.cluster import AffinityPropagation, KMeans, MeanShift, OPTICS
 
 def plot_data(X):
     plt.plot(X[:, 0], X[:, 1], 'k.', markersize=2)
@@ -268,4 +268,26 @@ def AffinityPropagation_classifier(org_features):
     org_features['Cluster'] = org_features['Cluster'].astype(str)
 
     return org_features, n_clusters
+
+def AffinityPropagation_classifier(org_features):
+
+    print("Classifying using OPTICS")
+
+    features = StandardScaler().fit_transform(org_features)
+
+    clustering = OPTICS(min_samples=1000, metric='euclidean', cluster_method='xi')
+    clustering.fit(features)
+
+    labels = clustering.labels_                          # labels of each point
+
+    # Find the number of clusters
+    labels_unique = np.unique(labels)
+    n_clusters: int = len(labels_unique)
+
+    # Save the data to a Pandas dataframe
+    org_features['Cluster'] = labels.astype(int)
+    org_features['Cluster'] = org_features['Cluster'].astype(str)
+
+    return org_features, n_clusters
+
 
