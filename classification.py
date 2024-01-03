@@ -269,7 +269,7 @@ def AffinityPropagation_classifier(org_features):
 
     return org_features, n_clusters
 
-def AffinityPropagation_classifier(org_features):
+def OPTICS_classifier(org_features):
 
     print("Classifying using OPTICS")
 
