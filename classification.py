@@ -243,8 +243,8 @@ def plot_sigma_vs_k(results, results_dir_3, classifier):
             results.iloc[1:, [1]],  # All the errors, except the first one (corresponding to one cluster)
             linestyle='-', marker='s')
     plt.legend()
-    plt.tight_layout()
-    plt.savefig(results_dir_3 + classifier + "_results.png")
+#    plt.tight_layout()
+#    plt.savefig(results_dir_3 + classifier + "_results.png")
 
     return
 
@@ -275,7 +275,7 @@ def OPTICS_classifier(org_features):
 
     features = StandardScaler().fit_transform(org_features)
 
-    clustering = OPTICS(min_samples=1000, metric='euclidean', cluster_method='xi')
+    clustering = OPTICS(metric='euclidean', cluster_method='dbscan')
     clustering.fit(features)
 
     labels = clustering.labels_                          # labels of each point

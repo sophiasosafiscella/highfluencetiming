@@ -13,6 +13,7 @@ import classification
 from timing_utils import time_single_pulses, weighted_moments
 from RFI_utils import remove_RFIs, meerguard
 import os
+import subprocess
 
 # IMPORTANT: we're assuming that the observations has already been processed
 #            with 512 phase bins and 128 single pulses per fits_file
@@ -22,8 +23,11 @@ if __name__ == '__main__':
 
     #   0) Get the fits_file names
     band: str = "820_band"
-    classifier: str = "OPTICS"        # Options: "Kmeans", "MeanShift", or "AffinityPropagation"
-    results_dir: str = "./results/" + band + "/"  # Directory with the results
+    classifier: str = "Kmeans"        # Options: "Kmeans", "MeanShift", or "AffinityPropagation"
+    results_dir: str = "./results/" + band + "_meerguard_pazrL/"  # Directory with the results
+#    pulses_dir: str = "/minish/svs00006/J2145_observations/L-band/rficleaned/"
+#    pulses_dir: str = "/minish/svs00006/J2145_observations/820-band/rficleaned/"
+#    pulses_dir: str = "/minish/svs00006/J2145_observations/820-band/using_paz/"
     pulses_dir: str = "./data/" + band + "/"
 
     if band == "L_band":
@@ -37,7 +41,7 @@ if __name__ == '__main__':
     time_sp: bool = False
 
     meerguard_ok: bool = True      # Clean using MeerGuard?
-    clfd_ok: bool = True          # Clean using clfd?
+    clfd_ok: bool = False           # Clean using clfd?
     mask_RFI_ok: bool = False      # Clean using mask_RFI?
     zap_minmax_ok: bool = False    # Clean using zap_minmax?
     chisq_filter_ok: bool = False   # Clean using chisq_filter?
@@ -89,14 +93,19 @@ if __name__ == '__main__':
     if meerguard_ok:
 
         # If we haven't cleaned using MeerGuard yet, do it
-        if len(glob.glob(pulses_dir + "*_cleaned.ar")) < len(files):
+        if not os.path.isdir(pulses_dir + "cleaned/"):
+            os.makedirs(pulses_dir + "cleaned/")
+
+        if len(glob.glob(pulses_dir + "cleaned/*_cleaned.ar")) < len(files):
             files = meerguard(files, pulses_dir, band, template_file)
+            subprocess.run("mv " + pulses_dir + "*cleaned.ar " + pulses_dir + "cleaned/", shell=True)
 
         # If we have cleaned already, load the cleaned files
         if band == "L_band":
-            files = sorted(glob.glob(pulses_dir + "*_cleaned.ar"))  # Files containing the observations
+            files = sorted(glob.glob(pulses_dir + "cleaned/*_cleaned.ar"))  # Files containing the observations
         elif band == "820_band":
-            files = sorted(glob.glob(pulses_dir + "*_cleaned.*ar"))
+            files = sorted(glob.glob(pulses_dir + "cleaned/*_cleaned.ar"))
+            print(files)
 
     #   4) Convert the observations to binary and weight them according to the off-pulse noise RMS
     if len(glob.glob(binary_out_dir + "*J2145*npy")) < len(files) and len(glob.glob(basic_weights_file)) == 0:
