@@ -22,9 +22,9 @@ import subprocess
 if __name__ == '__main__':
 
     #   0) Get the fits_file names
-    band: str = "820_band"
+    band: str = "L_band"
     classifier: str = "Kmeans"        # Options: "Kmeans", "MeanShift", or "AffinityPropagation"
-    results_dir: str = "./results/" + band + "_meerguard_pazrL/"  # Directory with the results
+    results_dir: str = "./results/" + band + "_meerguard_clfd_pazr/"  # Directory with the results
 #    pulses_dir: str = "/minish/svs00006/J2145_observations/L-band/rficleaned/"
 #    pulses_dir: str = "/minish/svs00006/J2145_observations/820-band/rficleaned/"
 #    pulses_dir: str = "/minish/svs00006/J2145_observations/820-band/using_paz/"
@@ -41,7 +41,7 @@ if __name__ == '__main__':
     time_sp: bool = False
 
     meerguard_ok: bool = True      # Clean using MeerGuard?
-    clfd_ok: bool = False           # Clean using clfd?
+    clfd_ok: bool = True           # Clean using clfd?
     mask_RFI_ok: bool = False      # Clean using mask_RFI?
     zap_minmax_ok: bool = False    # Clean using zap_minmax?
     chisq_filter_ok: bool = False   # Clean using chisq_filter?
@@ -105,7 +105,6 @@ if __name__ == '__main__':
             files = sorted(glob.glob(pulses_dir + "cleaned/*_cleaned.ar"))  # Files containing the observations
         elif band == "820_band":
             files = sorted(glob.glob(pulses_dir + "cleaned/*_cleaned.ar"))
-            print(files)
 
     #   4) Convert the observations to binary and weight them according to the off-pulse noise RMS
     if len(glob.glob(binary_out_dir + "*J2145*npy")) < len(files) and len(glob.glob(basic_weights_file)) == 0:
