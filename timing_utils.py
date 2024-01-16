@@ -77,7 +77,7 @@ def weighted_moments(series, weights, unbiased, harmonic=False):
 
     if harmonic:
 #        return weightedmean, harmonic_mean(1.0/weights)
-        return weightedmean, np.sqrt(1.0/np.sum(weights))
+        return weightedmean, np.sqrt(1.0/np.sum(weights))  # 1/sigma_TOT^2 = np.sum(weights)
 
     elif unbiased:
         weightsquaredsum = np.sum(np.power(weights, 2))
