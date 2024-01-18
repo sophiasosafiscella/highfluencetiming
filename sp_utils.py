@@ -158,6 +158,7 @@ def find_windows(template_file: str,  # name of the template fits_file
         average_pulse_data = np.load(results_dir + "av_pulse_profile.npy")
 
     av_pulse_peak_pos = np.argmax(average_pulse_data)
+    print(f"Av pulse peak pos = {av_pulse_peak_pos}")
 
     # If the template has 2048 bins and the pulses have 512, we divide:
     if len(template_data) != len(average_pulse_data):
