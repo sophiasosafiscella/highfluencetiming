@@ -151,13 +151,11 @@ def find_windows(template_file: str,  # name of the template fits_file
     offpulsewindow = [min(offpulse), max(offpulse)]
 
     # find the average of the pulses
-    pulses_files_for_av = files[0:100]
-
     av_pulse_file = glob.glob(results_dir + "av_pulse_profile.npy")
     if len(av_pulse_file) == 0:
         print("Calculating average pulse...")
-        average_pulse_data = get_average_pulse(pulses_files_for_av, nbins=512)
-        np.save(av_pulse_file, average_pulse_data)
+        average_pulse_data = get_average_pulse(files[0:100], nbins=512)
+        np.save(results_dir + "av_pulse_profile.npy", average_pulse_data)
     else:
         average_pulse_data = np.load(results_dir + "av_pulse_profile.npy")
 
