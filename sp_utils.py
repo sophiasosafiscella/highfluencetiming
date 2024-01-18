@@ -88,7 +88,8 @@ def get_average_pulse(pulses_files, nbins):
         av_pulse_profile += np.average(pyp.Archive(file, verbose=False).fscrunch().getData(), axis=0)
 
     print(f"Len of pulses files = {len(pulses_files)}")
-
+    print(f"Av pulse profile = {av_pulse_profile}")
+    sys.exit()
     av_pulse_profile /= len(pulses_files)
 
     return av_pulse_profile
