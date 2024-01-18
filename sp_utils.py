@@ -79,16 +79,15 @@ def calculate_rms(files, n_sp, n_chan):
     return rms_values
 
 
-def get_average_pulse(pulses_files):
+def get_average_pulse(pulses_files, nbins):
 
-    for i, file in enumerate(pulses_files):
+    av_pulse_profile = np.zeros(nbins)
 
-        data = pyp.Archive(file, verbose=False).fscrunch().getData()
+    for i, file in tqdm(enumerate(pulses_files)):
 
-        if i == 0:
-            av_pulse_profile = np.zeros(np.shape(data)[1])
+        av_pulse_profile += np.average(pyp.Archive(file, verbose=False).fscrunch().getData(), axis=0)
 
-        av_pulse_profile += np.average(data, axis=0)
+    print(f"Len of pulses files = {len(pulses_files)}")
 
     av_pulse_profile /= len(pulses_files)
 
@@ -147,12 +146,12 @@ def find_windows(template_file: str,  # name of the template fits_file
     offpulsewindow = [min(offpulse), max(offpulse)]
 
     # find the average of the pulses
-    pulses_files = glob.glob(pulses_directory + "/GUPPI*ar")[0:100]
-    print(f"Len of pulses files = {len(pulses_files)}")
+    pulses_files_for_av = glob.glob(pulses_directory + "/GUPPI*ar")[0:60]
 
     av_pulse_file = glob.glob(results_dir + "av*npy")
     if len(av_pulse_file) == 0:
-        average_pulse_data = get_average_pulse(pulses_files)
+        print("Creating the average pulse profile (using the first 60 single pulses)...")
+        average_pulse_data = get_average_pulse(pulses_files_for_av, nbins=512)
         print(f"Average pulse data = {average_pulse_data}")
         sys.exit()
         np.save(results_dir + "av_pulse_profile.npy", average_pulse_data)
