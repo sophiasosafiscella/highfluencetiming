@@ -89,6 +89,7 @@ def get_average_pulse(pulses_files, nbins):
 
         if np.any(np.isnan(data)):
             print(f"Found NaN in i={i}")
+            print(data)
             sys.exit()
         av_pulse_profile += data
 
