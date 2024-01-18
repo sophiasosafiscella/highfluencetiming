@@ -76,7 +76,7 @@ if __name__ == '__main__':
     if len(glob.glob(windows_data_file)) == 0:
         print("Creating the pulse windows...")
         windows_data = sp_utils.find_windows(template_file=template_file, pulses_directory=pulses_dir,
-                                             results_dir=results_dir,
+                                             results_dir=results_dir, files=files,
                                              window_percentage=12.5, windows_factor=2.4, plot=True)
         np.save(windows_data_file, windows_data)
     else:

@@ -136,6 +136,7 @@ def find_energy_windows(template_data, window_factor, bins_factor: float, plot):
 def find_windows(template_file: str,  # name of the template fits_file
                  pulses_directory: str,  # directory containing the single pulses
                  results_dir: str,  # Directory with the clusters_toas
+                 files: str,         # Names of the Archive files
                  window_percentage: float,  # percentage of the window we'll use for the main peak window
                  windows_factor: float,  # scale factor for the energy windows
                  bscrunching_factor: float = 4,
@@ -150,7 +151,7 @@ def find_windows(template_file: str,  # name of the template fits_file
     offpulsewindow = [min(offpulse), max(offpulse)]
 
     # find the average of the pulses
-    pulses_files_for_av = glob.glob(pulses_directory + "/GUPPI*ar")[0:60]
+    pulses_files_for_av = files[0:60]
     print(pulses_files_for_av)
     sys.exit()
 
