@@ -98,9 +98,9 @@ def get_average_pulse(pulses_files, nbins):
     return av_pulse_profile
 
 
-def find_energy_windows(template_data, window_factor, bins_factor: float, plot):
-    # finds the peaks in the template data
+def find_energy_windows(template_data, window_factor, bins_factor: float, plot:bool = False):
 
+    # finds the peaks in the template data
     peaks_pos, properties = find_peaks(template_data, distance=50, width=10, prominence=0.2)
 
     energy_margins = np.zeros((len(peaks_pos), 2), dtype=float)
@@ -162,11 +162,10 @@ def find_windows(template_file: str,  # name of the template fits_file
     av_pulse_peak_pos = np.argmax(average_pulse_data)
     print(f"Av pulse peak pos = {av_pulse_peak_pos}")
     # If the template has 2048 bins and the pulses have 512, we divide:
-    if len(template_data) != len(average_pulse_data):
-
-        bins_ratio = int(len(template_data) / len(average_pulse_data))
+    bins_ratio = int(len(template_data) / len(average_pulse_data))
+    if bins_ratio != 1:
         print("bins_ratio = " + str(bins_ratio))
-        template_data_512 = template_data[0:len(template_data):bins_ratio]
+        template_data = template_data[0:len(template_data):bins_ratio]
         template_peak_pos = round(template_peak_pos / bins_ratio)
 
     # in case we want to plot
@@ -177,8 +176,8 @@ def find_windows(template_file: str,  # name of the template fits_file
 
         ax.plot(bins512, average_pulse_data, c="C0", label="Average pulse")
         ax.scatter(bins512, average_pulse_data, c="C0")
-        #        ax.plot(bins512, template_data_512, c="C1", label="Template")
-        # ax.scatter(bins512, template_data_512, c="C1")
+        #        ax.plot(bins512, template_data, c="C1", label="Template")
+        # ax.scatter(bins512, template_data, c="C1")
 
         ax.set_xlim([template_peak_pos - 50, template_peak_pos + 50])
 
@@ -207,18 +206,18 @@ def find_windows(template_file: str,  # name of the template fits_file
         plt.subplots_adjust(wspace=0, hspace=0)
 
         x = np.array([*bins512])
-        ax[0].plot(x, template_data_512)
+        ax[0].plot(x, template_data)
         ax[0].axvline(x=template_peak_pos, ls="--", c='k')
         ax[0].axvline(x=left_margin, ls=":", c="grey")
         ax[0].axvline(x=right_margin, ls=":", c="grey")
-        ax[0].fill_between(x, min(template_data_512), max(template_data_512),
+        ax[0].fill_between(x, min(template_data), max(template_data),
                            where=((x < right_margin) & (x > left_margin)), color="C1", alpha=0.4)
         #        ax[0].set_xlabel("Bins")
         ax[0].set_ylabel("Intensity")
         ax[0].title.set_text("Pulse Windows")
 
         peaks_pos, properties = find_peaks(template_data, distance=50, width=10, prominence=0.2)
-        ax[1].plot(x, template_data_512)
+        ax[1].plot(x, template_data)
         ax[1].scatter(peaks_pos, template_data[peaks_pos], c="red", label='peaks')
 
         for left, right in zip(energy_windows[:, 0], energy_windows[:, 1]):
