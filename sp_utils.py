@@ -142,14 +142,14 @@ def find_windows(template_file: str,  # name of the template fits_file
     template = pypulse.Archive(template_file)
 #    template.bscrunch(factor=bscrunching_factor)
     template_data = template.getData()
-    print(f"Template data = {template_data}")
     template_peak_pos = np.argmax(template_data)
-    print(f"Template peak pos = {template_peak_pos}")
     offpulse = pypulse.SinglePulse(template_data, windowsize=int(template.getNbin() // 8)).calcOffpulseWindow()
     offpulsewindow = [min(offpulse), max(offpulse)]
 
     # find the average of the pulses
-    pulses_files = glob.glob(pulses_directory + "/GUPPI*ar")[0:40]
+    pulses_files = glob.glob(pulses_directory + "/GUPPI*ar")[0:100]
+    print(f"Len of pulses files = {len(pulses_files)}")
+    sys.exit()
     av_pulse_file = glob.glob(results_dir + "av*npy")
     if len(av_pulse_file) == 0:
         average_pulse_data = get_average_pulse(pulses_files)
