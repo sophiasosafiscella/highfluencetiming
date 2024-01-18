@@ -163,7 +163,7 @@ def find_windows(template_file: str,  # name of the template fits_file
         bins_ratio = int(len(template_data) / len(average_pulse_data))
         print("bins_ratio = " + str(bins_ratio))
         template_data_512 = template_data[0:len(template_data):bins_ratio]
-        template_peak_pos_512 = round(template_peak_pos / bins_ratio)
+        template_peak_pos = round(template_peak_pos / bins_ratio)
 
     # in case we want to plot
     if plot:
@@ -176,24 +176,24 @@ def find_windows(template_file: str,  # name of the template fits_file
         #        ax.plot(bins512, template_data_512, c="C1", label="Template")
         # ax.scatter(bins512, template_data_512, c="C1")
 
-        ax.set_xlim([template_peak_pos_512 - 50, template_peak_pos_512 + 50])
+        ax.set_xlim([template_peak_pos - 50, template_peak_pos + 50])
 
-        ax.axvline(x=av_pulse_peak_pos, ls="--", c='C4', label="Average peak = " + str(template_peak_pos_512))
-        ax.axvline(x=template_peak_pos_512, ls="--", c='C3', label="Template peak = " + str(av_pulse_peak_pos))
+        ax.axvline(x=av_pulse_peak_pos, ls="--", c='C4', label="Average peak = " + str(template_peak_pos))
+        ax.axvline(x=template_peak_pos, ls="--", c='C3', label="Template peak = " + str(av_pulse_peak_pos))
         plt.title("Comparison of template and average")
         plt.legend(loc="upper left")
         plt.show()
 
     # calculate the offset between the peaks and correct the template peak position
-    offset = template_peak_pos_512 - av_pulse_peak_pos
+    offset = template_peak_pos - av_pulse_peak_pos
     print(f"Offset = {offset}")
-    template_peak_pos_512 -= offset
-    print(f"Template peak pos = {template_peak_pos_512}")
+    template_peak_pos -= offset
+    print(f"Template peak pos = {template_peak_pos}")
     # Get the pulse window as a fraction of the pulse phase: 10 or 15%,or 12.5% (1/8) of the pulse phase
     width = int(len(bins512) / 100.0 * window_percentage)
     print(f"Width = {width}")
-    left_margin = int(template_peak_pos_512 - int(width / 2))
-    right_margin = int(template_peak_pos_512 + int(width / 2))
+    left_margin = int(template_peak_pos - int(width / 2))
+    right_margin = int(template_peak_pos + int(width / 2))
     print(f"Left margin = {left_margin}")
     print(f"Right margin = {right_margin}")
     sys.exit()
@@ -210,7 +210,7 @@ def find_windows(template_file: str,  # name of the template fits_file
 
         x = np.array([*bins512])
         ax[0].plot(x, template_data_512)
-        ax[0].axvline(x=template_peak_pos_512, ls="--", c='k')
+        ax[0].axvline(x=template_peak_pos, ls="--", c='k')
         ax[0].axvline(x=left_margin, ls=":", c="grey")
         ax[0].axvline(x=right_margin, ls=":", c="grey")
         ax[0].fill_between(x, min(template_data_512), max(template_data_512),
