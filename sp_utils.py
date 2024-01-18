@@ -85,11 +85,13 @@ def get_average_pulse(pulses_files, nbins):
 
     for i, file in tqdm(enumerate(pulses_files)):
 
-        av_pulse_profile += np.average(pyp.Archive(file, verbose=False).fscrunch().getData(), axis=0)
+        data = np.average(pyp.Archive(file, verbose=False).fscrunch().getData(), axis=0)
 
-    print(f"Len of pulses files = {len(pulses_files)}")
-    print(f"Av pulse profile = {av_pulse_profile}")
-    sys.exit()
+        if np.any(np.isnan(data)):
+            print(f"Found NaN in i={i}")
+            sys.exit()
+        av_pulse_profile += data
+
     av_pulse_profile /= len(pulses_files)
 
     return av_pulse_profile
@@ -151,16 +153,12 @@ def find_windows(template_file: str,  # name of the template fits_file
 
     av_pulse_file = glob.glob(results_dir + "av*npy")
     if len(av_pulse_file) == 0:
-        print("Creating the average pulse profile (using the first 60 single pulses)...")
         average_pulse_data = get_average_pulse(pulses_files_for_av, nbins=512)
-        print(f"Average pulse data = {average_pulse_data}")
-        sys.exit()
         np.save(results_dir + "av_pulse_profile.npy", average_pulse_data)
     else:
         average_pulse_data = np.load(results_dir + "av_pulse_profile.npy")
 
     av_pulse_peak_pos = np.argmax(average_pulse_data)
-    print(f"Av pulse peak pos = {av_pulse_peak_pos}")
 
     # If the template has 2048 bins and the pulses have 512, we divide:
     if len(template_data) != len(average_pulse_data):
@@ -191,19 +189,13 @@ def find_windows(template_file: str,  # name of the template fits_file
 
     # calculate the offset between the peaks and correct the template peak position
     offset = template_peak_pos - av_pulse_peak_pos
-    print(f"Offset = {offset}")
     template_peak_pos -= offset
-    print(f"Template peak pos = {template_peak_pos}")
     # Get the pulse window as a fraction of the pulse phase: 10 or 15%,or 12.5% (1/8) of the pulse phase
     width = int(len(bins512) / 100.0 * window_percentage)
-    print(f"Width = {width}")
     left_margin = int(template_peak_pos - int(width / 2))
     right_margin = int(template_peak_pos + int(width / 2))
-    print(f"Left margin = {left_margin}")
-    print(f"Right margin = {right_margin}")
-    sys.exit()
-    # find the energy windows
 
+    # find the energy windows
     energy_windows = find_energy_windows(template_data, windows_factor, bins_ratio, plot=False)
 
     if plot:
