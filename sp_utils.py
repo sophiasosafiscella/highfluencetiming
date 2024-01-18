@@ -149,10 +149,12 @@ def find_windows(template_file: str,  # name of the template fits_file
     # find the average of the pulses
     pulses_files = glob.glob(pulses_directory + "/GUPPI*ar")[0:100]
     print(f"Len of pulses files = {len(pulses_files)}")
-    sys.exit()
+
     av_pulse_file = glob.glob(results_dir + "av*npy")
     if len(av_pulse_file) == 0:
         average_pulse_data = get_average_pulse(pulses_files)
+        print(f"Average pulse data = {average_pulse_data}")
+        sys.exit()
         np.save(results_dir + "av_pulse_profile.npy", average_pulse_data)
     else:
         average_pulse_data = np.load(results_dir + "av_pulse_profile.npy")
