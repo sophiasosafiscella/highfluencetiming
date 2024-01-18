@@ -144,6 +144,7 @@ def find_windows(template_file: str,  # name of the template fits_file
     template_data = template.getData()
     print(f"Template data = {template_data}")
     template_peak_pos = np.argmax(template_data)
+    print(f"Template peak pos = {template_peak_pos}")
     offpulse = pypulse.SinglePulse(template_data, windowsize=int(template.getNbin() // 8)).calcOffpulseWindow()
     offpulsewindow = [min(offpulse), max(offpulse)]
 
