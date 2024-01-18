@@ -124,10 +124,10 @@ def to_binary_and_calculate_rms(files, out_dir: str, n_sp: int, bandpass=None, s
 
         # Load the observation to PyPulse
         ar = pyp.Archive(file, prepare=False, center_pulse=False, baseline_removal=False,
-                         lowmem=True, verbose=False)
+                         lowmem=False, verbose=False)
 
         ar.dedisperse()  # De-disperse
-        ar.center()
+#        ar.center()
 
         # Save the times
         new_index = ar.getNsubint() + last_index
@@ -138,8 +138,7 @@ def to_binary_and_calculate_rms(files, out_dir: str, n_sp: int, bandpass=None, s
         total_weights[last_index:new_index, :] = ar.getWeights()
 
         # Center the main pulse peak
-#        rolled_data = np.roll(ar.getData(), shift, axis=2)
-        rolled_data = ar.getData()
+        rolled_data = np.roll(ar.getData(), shift, axis=2)
 
         # Subtract the baseline. I totally stole this from github.com/mtlam/PyPulse/blob/master/pypulse/archive.py#L896
         baseline = np.mean(rolled_data[..., opw], axis=-1)

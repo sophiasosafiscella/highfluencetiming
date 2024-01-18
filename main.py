@@ -22,13 +22,14 @@ import subprocess
 if __name__ == '__main__':
 
     #   0) Get the fits_file names
-    band: str = "L_band"
+    band: str = "820_band"
     classifier: str = "Kmeans"        # Options: "Kmeans", "MeanShift", or "AffinityPropagation"
-    results_dir: str = "./results/" + band + "_meerguard_clfd_pazr/"  # Directory with the results
+    results_dir: str = "./results/pol_calibrated/" + band + "_pazr/"  # Directory with the results
 #    pulses_dir: str = "/minish/svs00006/J2145_observations/L-band/rficleaned/"
 #    pulses_dir: str = "/minish/svs00006/J2145_observations/820-band/rficleaned/"
 #    pulses_dir: str = "/minish/svs00006/J2145_observations/820-band/using_paz/"
-    pulses_dir: str = "./data/" + band + "/"
+#    pulses_dir: str = "./data/" + band + "/"
+    pulses_dir: str = "/minish/svs00006/J2145_observations/820-band/pol_cal/using_pazr/"
 
     if band == "L_band":
         files = sorted(glob.glob(pulses_dir + "GUPPI*ar"))[:1714]  # Files containing the observations
@@ -40,8 +41,8 @@ if __name__ == '__main__':
     plot_clusters: bool = True  # Plot the single pulses in the cluster_sp_times
     time_sp: bool = False
 
-    meerguard_ok: bool = True      # Clean using MeerGuard?
-    clfd_ok: bool = True           # Clean using clfd?
+    meerguard_ok: bool = False     # Clean using MeerGuard?
+    clfd_ok: bool = False          # Clean using clfd?
     mask_RFI_ok: bool = False      # Clean using mask_RFI?
     zap_minmax_ok: bool = False    # Clean using zap_minmax?
     chisq_filter_ok: bool = False   # Clean using chisq_filter?
