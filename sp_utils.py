@@ -88,7 +88,7 @@ def get_average_pulse(pulses_files, nbins):
         data = pyp.Archive(file, verbose=False).fscrunch().getData()
 
         if np.any(np.isnan(data)):
-            print(f"Found NaN in i={i}")
+            print(f"Found NaN in i={i}, file = {file}")
             print(data)
             sys.exit()
         av_pulse_profile += np.average(data, axis=0)
