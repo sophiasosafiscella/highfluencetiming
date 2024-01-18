@@ -80,6 +80,7 @@ def calculate_rms(files, n_sp, n_chan):
 
 
 def get_average_pulse(pulses_files):
+
     for i, file in enumerate(pulses_files):
 
         data = pyp.Archive(file, verbose=False).fscrunch().getData()
@@ -136,6 +137,7 @@ def find_windows(template_file: str,  # name of the template fits_file
                  windows_factor: float,  # scale factor for the energy windows
                  bscrunching_factor: float = 4,
                  plot=False):
+
     # find the peak of the template
     template = pypulse.Archive(template_file)
 #    template.bscrunch(factor=bscrunching_factor)
@@ -155,12 +157,13 @@ def find_windows(template_file: str,  # name of the template fits_file
 
     av_pulse_peak_pos = np.argmax(average_pulse_data)
 
-    # since the template has 2048 bins and the pulses have 512, we divide:
-    bins512 = range(len(average_pulse_data))
-    bins_ratio = int(len(template_data) / len(average_pulse_data))
-    print("bins_ratio = " + str(bins_ratio))
-    template_data_512 = template_data[0:len(template_data):bins_ratio]
-    template_peak_pos_512 = round(template_peak_pos / bins_ratio)
+    # If the template has 2048 bins and the pulses have 512, we divide:
+    if len(template_data) != len(average_pulse_data):
+        bins512 = range(len(average_pulse_data))
+        bins_ratio = int(len(template_data) / len(average_pulse_data))
+        print("bins_ratio = " + str(bins_ratio))
+        template_data_512 = template_data[0:len(template_data):bins_ratio]
+        template_peak_pos_512 = round(template_peak_pos / bins_ratio)
 
     # in case we want to plot
     if plot:
@@ -180,17 +183,18 @@ def find_windows(template_file: str,  # name of the template fits_file
         plt.show()
 
     # calculate the offset between the peaks and correct the template peak position
-
     offset = template_peak_pos_512 - av_pulse_peak_pos
+    print(f"Offset = {offset}")
     template_peak_pos_512 -= offset
-
+    print(f"Template peak pos = {template_peak_pos_512}")
     # Get the pulse window as a fraction of the pulse phase: 10 or 15%,or 12.5% (1/8) of the pulse phase
-
     width = int(len(bins512) / 100.0 * window_percentage)
-
+    print(f"Width = {width}")
     left_margin = int(template_peak_pos_512 - int(width / 2))
     right_margin = int(template_peak_pos_512 + int(width / 2))
-
+    print(f"Left margin = {left_margin}")
+    print(f"Right margin = {right_margin}")
+    sys.exit()
     # find the energy windows
 
     energy_windows = find_energy_windows(template_data, windows_factor, bins_ratio, plot=False)
