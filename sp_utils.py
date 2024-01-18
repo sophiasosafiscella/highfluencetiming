@@ -159,7 +159,7 @@ def find_windows(template_file: str,  # name of the template fits_file
 
     # If the template has 2048 bins and the pulses have 512, we divide:
     if len(template_data) != len(average_pulse_data):
-        bins512 = range(len(average_pulse_data))
+
         bins_ratio = int(len(template_data) / len(average_pulse_data))
         print("bins_ratio = " + str(bins_ratio))
         template_data_512 = template_data[0:len(template_data):bins_ratio]
@@ -168,6 +168,8 @@ def find_windows(template_file: str,  # name of the template fits_file
     # in case we want to plot
     if plot:
         fig, ax = plt.subplots()
+
+        bins512 = range(len(average_pulse_data))
 
         ax.plot(bins512, average_pulse_data, c="C0", label="Average pulse")
         ax.scatter(bins512, average_pulse_data, c="C0")
