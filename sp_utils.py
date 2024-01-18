@@ -85,13 +85,13 @@ def get_average_pulse(pulses_files, nbins):
 
     for i, file in tqdm(enumerate(pulses_files)):
 
-        data = np.average(pyp.Archive(file, verbose=False).fscrunch().getData(), axis=0)
+        data = pyp.Archive(file, verbose=False).fscrunch().getData()
 
         if np.any(np.isnan(data)):
             print(f"Found NaN in i={i}")
             print(data)
             sys.exit()
-        av_pulse_profile += data
+        av_pulse_profile += np.average(data, axis=0)
 
     av_pulse_profile /= len(pulses_files)
 
