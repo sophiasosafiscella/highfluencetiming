@@ -163,7 +163,7 @@ def OPTICS_classifier(org_features):
 
     features = StandardScaler().fit_transform(org_features)
 
-    clustering = OPTICS(min_samples=2000, cluster_method='xi', min_cluster_size=0.01)
+    clustering = OPTICS(cluster_method='xi')
     clustering.fit(features)                              # perform the classification
     labels = clustering.labels_                          # labels of each point
 
