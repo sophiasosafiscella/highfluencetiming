@@ -1,3 +1,4 @@
+
 # -------------------
 # High Fluence Timing
 # -------------------
@@ -23,25 +24,27 @@ if __name__ == '__main__':
 
     #   0) Get the fits_file names
     band: str = "820_band"
-    classifier: str = "Kmeans"        # Options: "Kmeans", "MeanShift", or "AffinityPropagation"
-    results_dir: str = "./results/pol_calibrated/" + band + "_pazr/"  # Directory with the results
+    classifier: str = "MeanShift"        # Options: "Kmeans", "MeanShift", or "AffinityPropagation"
+#    results_dir: str = "./results/final/" + band + "_meerguard_pazr/"  # Directory with the results
+    results_dir: str = "./results/final/" + band + "_meerguard_pazr/"
 #    pulses_dir: str = "/minish/svs00006/J2145_observations/L-band/rficleaned/"
 #    pulses_dir: str = "/minish/svs00006/J2145_observations/820-band/rficleaned/"
 #    pulses_dir: str = "/minish/svs00006/J2145_observations/820-band/using_paz/"
 #    pulses_dir: str = "./data/" + band + "/"
-    pulses_dir: str = "/minish/svs00006/J2145_observations/820-band/pol_cal/using_pazr/"
+#    pulses_dir: str = "/minish/svs00006/J2145_observations/820-band/folded/pol_calibrated/using_pazr/"
+    pulses_dir: str = "/minish/svs00006/J2145_observations/L-band/folded/pol_calibrated/using_pazr/"
 
     if band == "L_band":
-        files = sorted(glob.glob(pulses_dir + "GUPPI*ar"))[:1714]  # Files containing the observations
+        files = sorted(glob.glob(pulses_dir + "GUPPI*calibP"))[:1714]  # Files containing the observations
     elif band == "820_band":
-        files = sorted(glob.glob(pulses_dir + "GUPPI*ar"))[:1693]
+        files = sorted(glob.glob(pulses_dir + "GUPPI*calibP"))[:1693]
 
     low_res_file = glob.glob(pulses_dir + "low_res/low*pF*")[0]  # Low-resolution fits_file to create the dynamic spectrum
     template_file = glob.glob(pulses_dir +"*sm")[0]  # Files containing the template
     plot_clusters: bool = True  # Plot the single pulses in the cluster_sp_times
     time_sp: bool = False
 
-    meerguard_ok: bool = False     # Clean using MeerGuard?
+    meerguard_ok: bool = True     # Clean using MeerGuard?
     clfd_ok: bool = False          # Clean using clfd?
     mask_RFI_ok: bool = False      # Clean using mask_RFI?
     zap_minmax_ok: bool = False    # Clean using zap_minmax?
@@ -144,7 +147,6 @@ if __name__ == '__main__':
         merged_file: str = results_dir_2 + "unnormalized_data.pkl"
         merged_normalized_file: str = results_dir_2 + "normalized_data.pkl"
         features_file: str = results_dir_2 + "features.pkl"
-        results_file: str = results_dir_2 + "results.pkl"
 
         #   7) merge and normalize the data
         if len(glob.glob(merged_normalized_file)) == 0:
@@ -171,7 +173,7 @@ if __name__ == '__main__':
         plt.close()
         plt.title(str(noise_factor) + " $\sigma_{\mathrm{med}}$")
         plt.plot(merged_average_pulse, color="#e94196")
-        plt.savefig(results_dir_2 + "average_" + str(noise_factor) + ".png")
+#        plt.savefig(results_dir_2 + "average_" + str(noise_factor) + ".png")
         
         ar = pyp.Archive(files[0], verbose=False)
         ar.fscrunch()
@@ -194,6 +196,7 @@ if __name__ == '__main__':
 
         # Create a folder to dump the results of this classifier
         results_dir_3 = results_dir_2 + classifier + "/"
+        results_file: str = results_dir_2 + "results.pkl"
         if not os.path.isdir(results_dir_3):
             os.makedirs(results_dir_3)
 
@@ -218,7 +221,7 @@ if __name__ == '__main__':
 
                 #   9) Calculate the TOAs and sigma_TOAs for the different clusters
                 clusters_toas = classification.time_clusters(k, results_dir_3 + str(k) + "_clusters", clustered_data,
-                                                                 unnormalized_data, bin_to_musec, files[0])
+                                                                 unnormalized_data, bin_to_musec, files[0], plot_clusters=False)
 
                 # Save the results for this number of cluster to an output fits_file
                 k_clusters_results: str = results_dir_3 + str(k) + "_clusters/" + str(k) + "_clusters_results.plk"
@@ -276,7 +279,7 @@ if __name__ == '__main__':
 
             #   9) Calculate the TOAs and sigma_TOAs for the different clusters
             clusters_toas = classification.time_clusters(n_clusters, results_dir_3, clustered_data, unnormalized_data,
-                                                         bin_to_musec, files[0])
+                                                         bin_to_musec, files[0], plot=False)
 
             np.save(results_dir_3 + "results.npy", np.stack((results.loc[1, 'TOA':'sigma_TOA'].to_numpy(), np.asarray(
                 weighted_moments(series=clusters_toas["TOA"].to_numpy(), weights=clusters_toas["1/sigma^2"].to_numpy(),
