@@ -24,20 +24,21 @@ if __name__ == '__main__':
 
     #   0) Get the fits_file names
     band: str = "820_band"
-    classifier: str = "MeanShift"        # Options: "Kmeans", "MeanShift", or "AffinityPropagation"
+    classifier: str = "OPTICS"        # Options: "Kmeans", "OPTICS", "MeanShift", or "AffinityPropagation"
 #    results_dir: str = "./results/final/" + band + "_meerguard_pazr/"  # Directory with the results
     results_dir: str = "./results/final/" + band + "_meerguard_pazr/"
+
 #    pulses_dir: str = "/minish/svs00006/J2145_observations/L-band/rficleaned/"
 #    pulses_dir: str = "/minish/svs00006/J2145_observations/820-band/rficleaned/"
 #    pulses_dir: str = "/minish/svs00006/J2145_observations/820-band/using_paz/"
-#    pulses_dir: str = "./data/" + band + "/"
+    pulses_dir: str = "./data/" + band + "/"
 #    pulses_dir: str = "/minish/svs00006/J2145_observations/820-band/folded/pol_calibrated/using_pazr/"
-    pulses_dir: str = "/minish/svs00006/J2145_observations/L-band/folded/pol_calibrated/using_pazr/"
+#    pulses_dir: str = "/minish/svs00006/J2145_observations/L-band/folded/pol_calibrated/using_pazr/"
 
     if band == "L_band":
-        files = sorted(glob.glob(pulses_dir + "GUPPI*calibP"))[:1714]  # Files containing the observations
+        files = sorted(glob.glob(pulses_dir + "GUPPI*ar"))[:1714]  # Files containing the observations
     elif band == "820_band":
-        files = sorted(glob.glob(pulses_dir + "GUPPI*calibP"))[:1693]
+        files = sorted(glob.glob(pulses_dir + "GUPPI*ar"))[:1693]
 
     low_res_file = glob.glob(pulses_dir + "low_res/low*pF*")[0]  # Low-resolution fits_file to create the dynamic spectrum
     template_file = glob.glob(pulses_dir +"*sm")[0]  # Files containing the template
@@ -196,7 +197,7 @@ if __name__ == '__main__':
 
         # Create a folder to dump the results of this classifier
         results_dir_3 = results_dir_2 + classifier + "/"
-        results_file: str = results_dir_2 + "results.pkl"
+        results_file: str = results_dir_3 + "results.pkl"
         if not os.path.isdir(results_dir_3):
             os.makedirs(results_dir_3)
 
