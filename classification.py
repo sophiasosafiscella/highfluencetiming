@@ -143,13 +143,13 @@ def meanshift_classifier(org_features):
 
     features = StandardScaler().fit_transform(org_features)
 
-    meanshift = MeanShift(cluster_all=True, n_jobs=-1)  # set up the classifier
-    meanshift.fit(features)                              # perform the classification
-    labels = meanshift.labels_                          # labels of each point
+    clustering = MeanShift(cluster_all=True, n_jobs=-1)  # set up the classifier
+    clustering.fit(features)                              # perform the classification
+    labels = clustering.labels_                          # labels of each point
 
     # Find the number of clusters
     labels_unique = np.unique(labels)
-    n_clusters:int = len(labels_unique)
+    n_clusters: int = len(labels_unique)
 
     # Save the data to a Pandas dataframe
     org_features['Cluster'] = labels.astype(int)
@@ -157,6 +157,25 @@ def meanshift_classifier(org_features):
 
     return org_features, n_clusters
 
+def OPTICS_classifier(org_features):
+
+    print("Classifying using OPTICS")
+
+    features = StandardScaler().fit_transform(org_features)
+
+    clustering = OPTICS(min_samples=2000, cluster_method='xi', min_cluster_size=0.01)
+    clustering.fit(features)                              # perform the classification
+    labels = clustering.labels_                          # labels of each point
+
+    # Find the number of clusters
+    labels_unique = np.unique(labels)
+    n_clusters: int = len(labels_unique)
+
+    # Save the data to a Pandas dataframe
+    org_features['Cluster'] = labels.astype(int)
+    org_features['Cluster'] = org_features['Cluster'].astype(str)
+
+    return org_features, n_clusters
 
 
 def clean_artifacts(cluster_average_pulse, clean_window, delta: int = 20):
