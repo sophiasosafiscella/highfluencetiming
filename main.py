@@ -265,6 +265,31 @@ if __name__ == '__main__':
                                                 weights=clusters_toas["1/sigma^2"].to_numpy(),
                                                 unbiased=False, harmonic=True)))))
 
+
+        elif classifier == "OPTICS":
+
+            #   8) Perform the classification
+            clusters_file: str = results_dir_3 + "meanshift_features.pkl"
+            n_clusters_file: str = results_dir_3 + "n_clusters.npy"
+            if len(glob.glob(clusters_file)) == 0:
+                clustered_data, n_clusters = classification.OPTICS_classifier(org_features)
+                clustered_data.to_pickle(clusters_file)
+                np.save(n_clusters_file, n_clusters)
+            else:
+                clustered_data = pd.read_pickle(clusters_file)
+                n_clusters = np.load(n_clusters_file)
+
+            #   9) Calculate the TOAs and sigma_TOAs for the different clusters
+            clusters_toas = classification.time_clusters(n_clusters, results_dir_3, clustered_data, unnormalized_data,
+                                                         bin_to_musec, files[0])
+
+            np.save(results_dir_3 + "results.npy",
+                    np.stack((results.loc[1, 'TOA':'sigma_TOA'].to_numpy(),
+                    np.asarray(weighted_moments(series=clusters_toas["TOA"].to_numpy(),
+                                                weights=clusters_toas["1/sigma^2"].to_numpy(),
+                                                unbiased=False, harmonic=True)))))
+
+
         elif classifier == "AffinityPropagation":
 
             #   8) Perform the classification
