@@ -306,25 +306,3 @@ def AffinityPropagation_classifier(org_features):
 
     return org_features, n_clusters
 
-def OPTICS_classifier(org_features):
-
-    print("Classifying using OPTICS")
-
-    features = StandardScaler().fit_transform(org_features)
-
-    clustering = OPTICS(metric='euclidean', cluster_method='dbscan')
-    clustering.fit(features)
-
-    labels = clustering.labels_                          # labels of each point
-
-    # Find the number of clusters
-    labels_unique = np.unique(labels)
-    n_clusters: int = len(labels_unique)
-
-    # Save the data to a Pandas dataframe
-    org_features['Cluster'] = labels.astype(int)
-    org_features['Cluster'] = org_features['Cluster'].astype(str)
-
-    return org_features, n_clusters
-
-
