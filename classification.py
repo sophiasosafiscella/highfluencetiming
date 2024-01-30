@@ -163,7 +163,7 @@ def OPTICS_classifier(org_features):
 
     features = StandardScaler().fit_transform(org_features)
 
-    clustering = OPTICS(cluster_method='xi')
+    clustering = OPTICS(cluster_method='xi', max_eps=0.044)
     clustering.fit(features)                              # perform the classification
     labels = clustering.labels_                          # labels of each point
 
@@ -198,6 +198,8 @@ def time_clusters(n_clusters, results_dir_2, clustered_data, unnormalized_data, 
     ar.fscrunch()
     ar.tscrunch()
 
+    print(n_clusters)
+    sys.exit()
     for cluster_index in range(n_clusters):
 
         # Isolate the single pulses in the cluster
@@ -209,6 +211,8 @@ def time_clusters(n_clusters, results_dir_2, clustered_data, unnormalized_data, 
 
         # Fix for weird artifacts
         cluster_average_pulse = clean_artifacts(cluster_average_pulse, [224, 227])
+        print("Cluster average pulse:")
+        print(cluster_average_pulse)
 
         # Copy to an Archive object
         ar.data = np.copy(cluster_average_pulse)
@@ -255,6 +259,9 @@ def time_clusters(n_clusters, results_dir_2, clustered_data, unnormalized_data, 
             smoothed_cluster_sp = pyp.SinglePulse(smoothed_cluster, opw=np.arange(0, 100))
 
             # Calculate the cluster average TOA and TOA error
+            print("Smoothed cluster pulse:")
+            print(smoothed_cluster)
+
             clusters_toas.loc[cluster_index, "TOA":"sigma_TOA"] = (
                     ar.fitPulses(smoothed_cluster_sp, nums=[1, 3]) * bin_to_musec)
 
