@@ -177,7 +177,7 @@ if __name__ == '__main__':
         bin_to_musec = (ar.getPeriod() / ar.getNbin()) * 1.0e6
 
         # Calculate the TOA and TOA error for the whole observation and save to the first row of the results dataframe
-        results.loc[1, 'TOA':'sigma_TOA'] = np.asarray(ar.fitPulses(template_data, nums=[1, 3]) * bin_to_musec)
+        non_clustered_res = np.asarray(ar.fitPulses(template_data, nums=[1, 3]) * bin_to_musec)
 
         #   8) Create the features for each single pulse
         if len(glob.glob(features_file)) == 0:
@@ -197,6 +197,7 @@ if __name__ == '__main__':
 
             k_values = np.arange(1, 18, 1, dtype=int)  # Number of clusters for the classifier
             results = pd.DataFrame(index=k_values, columns=['TOA', 'sigma_TOA'])
+            results.loc[1, 'TOA':'sigma_TOA'] = non_clustered_res
 
             #   Iterate over the values of k, except the first one because that one is using only one cluster
             for k in k_values[1:]:
@@ -255,7 +256,7 @@ if __name__ == '__main__':
                                                          bin_to_musec, files[0])
 
             np.save(results_dir_3 + "results.npy",
-                    np.stack((results.loc[1, 'TOA':'sigma_TOA'].to_numpy(),
+                    np.stack((np.asarray(non_clustered_res),
                     np.asarray(weighted_moments(series=clusters_toas["TOA"].to_numpy(),
                                                 weights=clusters_toas["1/sigma^2"].to_numpy(),
                                                 unbiased=False, harmonic=True)))))
@@ -263,9 +264,12 @@ if __name__ == '__main__':
 
         elif classifier == "OPTICS":
 
-            #   Iterate over the values of max_eps
+            #  Iterate over the values of max_eps
             max_eps_values = np.arange(start=0.0430, stop=0.0356, step=0.0001, dtype=float)
-            results = pd.DataFrame(index=max_eps_values, columns=['n_clusters', 'TOA', 'sigma_TOA'])
+            results = pd.DataFrame(index=np.stack((np.asarray(1), max_eps_values)), columns=['n_clusters', 'TOA', 'sigma_TOA'])
+
+            # The first row is the results when no clustering is used
+            results.loc[1, 'n_clusters':'sigma_TOA'] = np.stack((1, np.asarray(non_clustered_res)))
 
             for max_eps in max_eps_values:
 
