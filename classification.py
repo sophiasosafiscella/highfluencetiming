@@ -196,8 +196,6 @@ def time_clusters(n_clusters, results_dir_2, clustered_data, unnormalized_data, 
     ar.fscrunch()
     ar.tscrunch()
 
-    print(n_clusters)
-    sys.exit()
     for cluster_index in range(n_clusters):
 
         # Isolate the single pulses in the cluster
