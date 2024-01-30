@@ -265,11 +265,12 @@ if __name__ == '__main__':
         elif classifier == "OPTICS":
 
             #  Iterate over the values of max_eps
-            max_eps_values = np.arange(start=0.0430, stop=0.0356, step=0.0001, dtype=float)
-            results = pd.DataFrame(index=np.stack((np.asarray(1), max_eps_values)), columns=['n_clusters', 'TOA', 'sigma_TOA'])
+            max_eps_values = np.arange(start=0.0355, stop=0.0431, step=0.0001, dtype=float)
+            results = pd.DataFrame(index=np.concatenate((np.asarray([0]), max_eps_values)), columns=['n_clusters', 'TOA', 'sigma_TOA'])
 
             # The first row is the results when no clustering is used
-            results.loc[1, 'n_clusters':'sigma_TOA'] = np.stack((1, np.asarray(non_clustered_res)))
+            results.loc[0, 'n_clusters'] = np.asarray([1])
+            results.loc[0, 'TOA':'sigma_TOA'] = np.asarray(non_clustered_res)
 
             for max_eps in max_eps_values:
 
