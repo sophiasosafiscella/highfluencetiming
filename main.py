@@ -60,9 +60,6 @@ if __name__ == '__main__':
     basic_weights_file: str = results_dir + "basic_weights.npy"
     weights_file: str = results_dir + "weights.npy"
 
-    k_values = np.arange(1, 18, 1, dtype=int)  # Number of clusters for the classifier
-    results = pd.DataFrame(index=k_values, columns=['TOA', 'sigma_TOA'])
-
     #   1) Create the dynamic spectrum
     if len(glob.glob(ds_data_file)) == 0:
         print("Creating the dynamic spectrum...")
@@ -198,6 +195,9 @@ if __name__ == '__main__':
 
         if classifier == "Kmeans":
 
+            k_values = np.arange(1, 18, 1, dtype=int)  # Number of clusters for the classifier
+            results = pd.DataFrame(index=k_values, columns=['TOA', 'sigma_TOA'])
+
             #   Iterate over the values of k, except the first one because that one is using only one cluster
             for k in k_values[1:]:
 
@@ -263,26 +263,40 @@ if __name__ == '__main__':
 
         elif classifier == "OPTICS":
 
-            #   8) Perform the classification
-            clusters_file: str = results_dir_3 + "meanshift_features.pkl"
-            n_clusters_file: str = results_dir_3 + "n_clusters.npy"
-            if len(glob.glob(clusters_file)) == 0:
-                clustered_data, n_clusters = classification.OPTICS_classifier(org_features)
+            #   Iterate over the values of max_eps
+            max_eps_values = np.arange(start=0.0430, stop=0.0356, step=0.0001, dtype=float)
+            results = pd.DataFrame(index=max_eps_values, columns=['n_clusters', 'TOA', 'sigma_TOA'])
+
+            for max_eps in max_eps_values:
+
+                print(f"Analyzing max_eps = {max_eps}")
+
+                #   8) Perform the classification
+                clusters_file: str = results_dir_3 + str(max_eps) + "_OPTICS_features.pkl"
+
+                clustered_data, results.loc[max_eps, 'n_clusters'] = classification.OPTICS_classifier(org_features=org_features, max_eps=max_eps)
                 clustered_data.to_pickle(clusters_file)
-                np.save(n_clusters_file, n_clusters)
-            else:
-                clustered_data = pd.read_pickle(clusters_file)
-                n_clusters = np.load(n_clusters_file)
 
-            #   9) Calculate the TOAs and sigma_TOAs for the different clusters
-            clusters_toas = classification.time_clusters(n_clusters, results_dir_3, clustered_data, unnormalized_data,
-                                                         bin_to_musec, files[0])
+                # Create a folder to dump the results of this value of max_eps
+                if not os.path.isdir(results_dir_3 + str(max_eps) + "_maxeps"):
+                    os.makedirs(results_dir_3 + str(max_eps) + "_maxeps")
 
-            np.save(results_dir_3 + "results.npy",
-                    np.stack((results.loc[1, 'TOA':'sigma_TOA'].to_numpy(),
-                    np.asarray(weighted_moments(series=clusters_toas["TOA"].to_numpy(),
-                                                weights=clusters_toas["1/sigma^2"].to_numpy(),
-                                                unbiased=False, harmonic=True)))))
+                #   9) Calculate the TOAs and sigma_TOAs for the different clusters
+                clusters_toas = classification.time_clusters(results.loc[max_eps, 'n_clusters'], results_dir_3,
+                                                             clustered_data, unnormalized_data, bin_to_musec, files[0])
+
+                # Save the results for this number of cluster to an output fits_file
+                max_eps_results: str = results_dir_3 + str(max_eps) + "_maxeps/" + str(max_eps) + "_maxeps_results.plk"
+                clusters_toas.to_pickle(max_eps_results)
+
+                # Save the results to the general results dataframe
+                results.loc[max_eps, 'TOA':'sigma_TOA'] = np.asarray(weighted_moments(series=clusters_toas["TOA"].to_numpy(),
+                                                                                weights=clusters_toas[
+                                                                                    "1/sigma^2"].to_numpy(),
+                                                                                unbiased=False, harmonic=True))
+
+            # Save the final results
+            results.to_pickle(results_file)
 
 
         elif classifier == "AffinityPropagation":
