@@ -163,7 +163,7 @@ def OPTICS_classifier(org_features, max_eps):
 
     features = StandardScaler().fit_transform(org_features)
 
-    clustering = OPTICS(cluster_method='xi', max_eps=max_eps)
+    clustering = OPTICS(cluster_method='xi', max_eps=max_eps, min_cluster_size=0.05)
     clustering.fit(features)                              # perform the classification
     labels = clustering.labels_                          # labels of each point
 
@@ -188,7 +188,7 @@ def clean_artifacts(cluster_average_pulse, clean_window, delta: int = 20):
 
     return cluster_average_pulse
 
-def time_clusters(cluster_indexes, results_dir_2, clustered_data, unnormalized_data, bin_to_musec, first_file,
+def time_clusters(cluster_indexes, results_dir, clustered_data, unnormalized_data, bin_to_musec, first_file,
                   plot_clusters=True):
 
     clusters_toas = pd.DataFrame(columns=['TOA', 'sigma_TOA', '1/sigma^2'], index=list(cluster_indexes))
@@ -228,12 +228,12 @@ def time_clusters(cluster_indexes, results_dir_2, clustered_data, unnormalized_d
 
         else:
 
-            results_dir_3: str = results_dir_2 + "/cluster_" + str(cluster_index)
+            results_dir_2: str = results_dir + "/cluster_" + str(cluster_index)
 
             # Make plots of some the single pulses in the cluster
-            if plot_clusters and not os.path.isdir(results_dir_3):
+            if plot_clusters and not os.path.isdir(results_dir_2):
 
-                os.makedirs(results_dir_3)
+                os.makedirs(results_dir_2)
 
                 bins = np.arange(cluster_pulses.shape[1])
                 plt.xlabel("Bins")
@@ -244,14 +244,14 @@ def time_clusters(cluster_indexes, results_dir_2, clustered_data, unnormalized_d
                     plt.plot(bins, cluster_pulses.loc[time], color='#e94196')
                     plt.title("Pulse at t = " + str(time))
                     plt.tight_layout()
-                    plt.savefig(results_dir_3 + "/" + str(n) + ".png")
+                    plt.savefig(results_dir_2 + "/" + str(n) + ".png")
                     plt.close()
 
                 # Make a plot of the average pulse of the cluster
                 plt.plot(bins, cluster_average_pulse, color='#e94196')
                 plt.title("Integrated pulse profile for cluster " + str(cluster_index))
                 plt.tight_layout()
-                plt.savefig(results_dir_3 + "/average.png")
+                plt.savefig(results_dir_2 + "/average.png")
                 plt.close()
 
             # Dump the template into a SinglePulse object

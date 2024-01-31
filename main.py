@@ -213,16 +213,16 @@ if __name__ == '__main__':
                     clustered_data = pd.read_pickle(clusters_file)
 
                 # Create a folder to dump the results of this value of k
-                if not os.path.isdir(results_dir_3 + str(k) + "_clusters"):
-                    os.makedirs(results_dir_3 + str(k) + "_clusters")
+                results_dir_4: str = results_dir_3 + str(k) + "_clusters"
+                if not os.path.isdir(results_dir_4):
+                    os.makedirs(results_dir_4)
 
                 #   9) Calculate the TOAs and sigma_TOAs for the different clusters
-                clusters_toas = classification.time_clusters(cluster_indexes = np.arange(k),
-                                                             results_dir_2 = results_dir_3 + str(k) + "_clusters",
-                                                             clustered_data= clustered_data,
-                                                             unnormalized_data = unnormalized_data,
-                                                             bin_to_musec = bin_to_musec,
-                                                             first_file = files[0], plot_clusters=False)
+                clusters_toas = classification.time_clusters(cluster_indexes=np.arange(k), results_dir=results_dir_4,
+                                                             clustered_data=clustered_data,
+                                                             unnormalized_data=unnormalized_data,
+                                                             bin_to_musec=bin_to_musec, first_file=files[0],
+                                                             plot_clusters=False)
 
                 # Save the results for this number of cluster to an output fits_file
                 k_clusters_results: str = results_dir_3 + str(k) + "_clusters/" + str(k) + "_clusters_results.plk"
@@ -284,16 +284,20 @@ if __name__ == '__main__':
                 clusters_file: str = results_dir_3 + str(max_eps) + "_OPTICS_features.pkl"
 
                 clustered_data, cluster_indexes = classification.OPTICS_classifier(org_features=org_features, max_eps=max_eps)
+                print(f"{max_eps} results in {len(cluster_indexes)} clusters")
+                continue
+
                 results.loc[max_eps, 'n_clusters'] = len(cluster_indexes)
                 clustered_data.to_pickle(clusters_file)
 
                 # Create a folder to dump the results of this value of max_eps
-                if not os.path.isdir(results_dir_3 + str(max_eps) + "_maxeps"):
-                    os.makedirs(results_dir_3 + str(max_eps) + "_maxeps")
+                results_dir_4: str = results_dir_3 + str(max_eps) + "_maxeps"
+                if not os.path.isdir(results_dir_4):
+                    os.makedirs(results_dir_4)
 
                 #   9) Calculate the TOAs and sigma_TOAs for the different clusters
-                clusters_toas = classification.time_clusters(cluster_indexes, results_dir_3,
-                                                             clustered_data, unnormalized_data, bin_to_musec, files[0])
+                clusters_toas = classification.time_clusters(cluster_indexes, results_dir_4, clustered_data,
+                                                             unnormalized_data, bin_to_musec, files[0])
 
                 # Save the results for this number of cluster to an output fits_file
                 max_eps_results: str = results_dir_3 + str(max_eps) + "_maxeps/" + str(max_eps) + "_maxeps_results.plk"
@@ -324,7 +328,7 @@ if __name__ == '__main__':
 
             #   9) Calculate the TOAs and sigma_TOAs for the different clusters
             clusters_toas = classification.time_clusters(n_clusters, results_dir_3, clustered_data, unnormalized_data,
-                                                         bin_to_musec, files[0], plot=False)
+                                                         bin_to_musec, files[0])
 
             np.save(results_dir_3 + "results.npy", np.stack((results.loc[1, 'TOA':'sigma_TOA'].to_numpy(), np.asarray(
                 weighted_moments(series=clusters_toas["TOA"].to_numpy(), weights=clusters_toas["1/sigma^2"].to_numpy(),

@@ -8,13 +8,13 @@ psrfbins: int = 32
 block_size: int = 156762
 
 # Get all the PSRFits files
-fits_files = glob.glob("./*fits")
+fits_files = glob.glob("./*calibP")
 
 # For each PSRFits fits_file
 for n, fits_file in tqdm(enumerate(fits_files)):
-	fil_file: str = fits_file[:-5] + ".fil"
-	cleaned_file: str = fits_file[:-5] + "_rficleaned.fil"
-	new_fits_file: str = fits_file[:-5] + "_rficleaned.fil"
+	fil_file: str = fits_file[:-7] + ".fil"
+	cleaned_file: str = fits_file[:-7] + "_rficleaned.fil"
+	new_fits_file: str = fits_file[:-7] + "_rficleaned.fil"
 
 	# Convert the .fits files to SIGPROC filterbank format files
 	subprocess.run("./digifil -b 8 -d 1 -o" + fil_file + " " + fits_file, shell=True)
