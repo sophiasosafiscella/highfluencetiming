@@ -6,6 +6,8 @@ import os
 import pypulse as pyp
 import sys
 
+from IPython.display import display
+
 from sklearn.preprocessing import StandardScaler
 from sklearn.cluster import AffinityPropagation, KMeans, MeanShift, OPTICS
 
@@ -166,14 +168,13 @@ def OPTICS_classifier(org_features, max_eps):
     labels = clustering.labels_                          # labels of each point
 
     # Find the number of clusters
-    labels_unique = np.unique(labels)
-    n_clusters: int = len(labels_unique)
+    cluster_indexes = np.unique(labels)
 
     # Save the data to a Pandas dataframe
     org_features['Cluster'] = labels.astype(int)
     org_features['Cluster'] = org_features['Cluster'].astype(str)
 
-    return org_features, n_clusters
+    return org_features, cluster_indexes
 
 
 def clean_artifacts(cluster_average_pulse, clean_window, delta: int = 20):
@@ -187,28 +188,30 @@ def clean_artifacts(cluster_average_pulse, clean_window, delta: int = 20):
 
     return cluster_average_pulse
 
-def time_clusters(n_clusters, results_dir_2, clustered_data, unnormalized_data, bin_to_musec, first_file,
+def time_clusters(cluster_indexes, results_dir_2, clustered_data, unnormalized_data, bin_to_musec, first_file,
                   plot_clusters=True):
 
-    clusters_toas = pd.DataFrame(columns=['TOA', 'sigma_TOA', '1/sigma^2'], index=list(range(n_clusters)))
+    clusters_toas = pd.DataFrame(columns=['TOA', 'sigma_TOA', '1/sigma^2'], index=list(cluster_indexes))
 
     ar = pyp.Archive(first_file, verbose=False)
     ar.fscrunch()
     ar.tscrunch()
 
-    for cluster_index in range(n_clusters):
+    for cluster_index in cluster_indexes:
+
+        print(f"Timing cluster {cluster_index}")
 
         # Isolate the single pulses in the cluster
         cluster_sp_times = clustered_data[clustered_data['Cluster'] == str(cluster_index)].index.to_numpy()
         cluster_pulses = unnormalized_data.loc[cluster_sp_times]
+        print(f"Number of single pulses = {len(cluster_sp_times)}")
+        print(np.any(np.isnan(cluster_pulses.to_numpy())))
 
         # Calculate the cluster average pulse
         cluster_average_pulse = np.average(cluster_pulses.to_numpy(), axis=0)
 
         # Fix for weird artifacts
         cluster_average_pulse = clean_artifacts(cluster_average_pulse, [224, 227])
-        print("Cluster average pulse:")
-        print(cluster_average_pulse)
 
         # Copy to an Archive object
         ar.data = np.copy(cluster_average_pulse)
@@ -255,8 +258,6 @@ def time_clusters(n_clusters, results_dir_2, clustered_data, unnormalized_data, 
             smoothed_cluster_sp = pyp.SinglePulse(smoothed_cluster, opw=np.arange(0, 100))
 
             # Calculate the cluster average TOA and TOA error
-            print("Smoothed cluster pulse:")
-            print(smoothed_cluster)
 
             clusters_toas.loc[cluster_index, "TOA":"sigma_TOA"] = (
                     ar.fitPulses(smoothed_cluster_sp, nums=[1, 3]) * bin_to_musec)

@@ -279,7 +279,8 @@ if __name__ == '__main__':
                 #   8) Perform the classification
                 clusters_file: str = results_dir_3 + str(max_eps) + "_OPTICS_features.pkl"
 
-                clustered_data, results.loc[max_eps, 'n_clusters'] = classification.OPTICS_classifier(org_features=org_features, max_eps=max_eps)
+                clustered_data, cluster_indexes = classification.OPTICS_classifier(org_features=org_features, max_eps=max_eps)
+                results.loc[max_eps, 'n_clusters'] = len(cluster_indexes)
                 clustered_data.to_pickle(clusters_file)
 
                 # Create a folder to dump the results of this value of max_eps
@@ -287,7 +288,7 @@ if __name__ == '__main__':
                     os.makedirs(results_dir_3 + str(max_eps) + "_maxeps")
 
                 #   9) Calculate the TOAs and sigma_TOAs for the different clusters
-                clusters_toas = classification.time_clusters(results.loc[max_eps, 'n_clusters'], results_dir_3,
+                clusters_toas = classification.time_clusters(cluster_indexes, results_dir_3,
                                                              clustered_data, unnormalized_data, bin_to_musec, files[0])
 
                 # Save the results for this number of cluster to an output fits_file
