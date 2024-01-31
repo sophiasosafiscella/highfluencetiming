@@ -270,7 +270,7 @@ if __name__ == '__main__':
 
             #  Iterate over the values of max_eps
 #            max_eps_values = np.arange(start=0.0355, stop=0.0431, step=0.0001, dtype=float)
-            max_eps_values = np.arange(start=0.02, stop=3.0, step=0.01, dtype=float)
+            max_eps_values = np.arange(start=0.01, stop=5.0, step=0.01, dtype=float)
             n_clusters_res = pd.DataFrame(index=max_eps_values, columns=['n_clusters'])
             results = pd.DataFrame(index=np.concatenate((np.asarray([0]), max_eps_values)), columns=['n_clusters', 'TOA', 'sigma_TOA'])
 
@@ -313,7 +313,7 @@ if __name__ == '__main__':
                                                                                 unbiased=False, harmonic=True))
 
             # Save the final results
-            n_clusters_res("OPTICS_n_clusters_res.pkl")
+            n_clusters_res.to_pickle("OPTICS_n_clusters_res.pkl")
             sys.exit()
 
             results.to_pickle(results_file)
