@@ -217,8 +217,12 @@ if __name__ == '__main__':
                     os.makedirs(results_dir_3 + str(k) + "_clusters")
 
                 #   9) Calculate the TOAs and sigma_TOAs for the different clusters
-                clusters_toas = classification.time_clusters(k, results_dir_3 + str(k) + "_clusters", clustered_data,
-                                                                 unnormalized_data, bin_to_musec, files[0], plot_clusters=False)
+                clusters_toas = classification.time_clusters(cluster_indexes = np.arange(k),
+                                                             results_dir_2 = results_dir_3 + str(k) + "_clusters",
+                                                             clustered_data= clustered_data,
+                                                             unnormalized_data = unnormalized_data,
+                                                             bin_to_musec = bin_to_musec,
+                                                             first_file = files[0], plot_clusters=False)
 
                 # Save the results for this number of cluster to an output fits_file
                 k_clusters_results: str = results_dir_3 + str(k) + "_clusters/" + str(k) + "_clusters_results.plk"
