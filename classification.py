@@ -163,7 +163,7 @@ def OPTICS_classifier(org_features, max_eps):
 
     features = StandardScaler().fit_transform(org_features)
 
-    clustering = OPTICS(cluster_method='xi', max_eps=max_eps, min_cluster_size=0.01)
+    clustering = OPTICS(cluster_method='xi', max_eps=max_eps, min_cluster_size=0.1)
     clustering.fit(features)                              # perform the classification
     labels = clustering.labels_                          # labels of each point
 
@@ -199,13 +199,13 @@ def time_clusters(cluster_indexes, results_dir, clustered_data, unnormalized_dat
 
     for cluster_index in cluster_indexes:
 
-        print(f"Timing cluster {cluster_index}")
+#        print(f"Timing cluster {cluster_index}")
 
         # Isolate the single pulses in the cluster
         cluster_sp_times = clustered_data[clustered_data['Cluster'] == str(cluster_index)].index.to_numpy()
         cluster_pulses = unnormalized_data.loc[cluster_sp_times]
-        print(f"Number of single pulses = {len(cluster_sp_times)}")
-        print(np.any(np.isnan(cluster_pulses.to_numpy())))
+        print(f"Cluster {cluster_index} has single pulses = {len(cluster_sp_times)}")
+#        print(np.any(np.isnan(cluster_pulses.to_numpy())))
 
         # Calculate the cluster average pulse
         cluster_average_pulse = np.average(cluster_pulses.to_numpy(), axis=0)

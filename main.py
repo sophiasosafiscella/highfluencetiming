@@ -270,7 +270,7 @@ if __name__ == '__main__':
 
             #  Iterate over the values of max_eps
 #            max_eps_values = np.arange(start=0.0355, stop=0.0431, step=0.0001, dtype=float)
-            max_eps_values = np.arange(start=0.01, stop=5.0, step=0.01, dtype=float)
+            max_eps_values = np.arange(start=0.08, stop=0.58, step=0.01, dtype=float)
             n_clusters_res = pd.DataFrame(index=max_eps_values, columns=['n_clusters'])
             results = pd.DataFrame(index=np.concatenate((np.asarray([0]), max_eps_values)), columns=['n_clusters', 'TOA', 'sigma_TOA'])
 
@@ -288,7 +288,6 @@ if __name__ == '__main__':
                 clustered_data, cluster_indexes = classification.OPTICS_classifier(org_features=org_features, max_eps=max_eps)
                 print(f"{max_eps} results in {len(cluster_indexes)} clusters")
                 n_clusters_res[max_eps, 'n_clusters'] = len(cluster_indexes)
-                continue
 
                 results.loc[max_eps, 'n_clusters'] = len(cluster_indexes)
                 clustered_data.to_pickle(clusters_file)
@@ -313,9 +312,6 @@ if __name__ == '__main__':
                                                                                 unbiased=False, harmonic=True))
 
             # Save the final results
-            n_clusters_res.to_pickle("OPTICS_n_clusters_res.pkl")
-            sys.exit()
-
             results.to_pickle(results_file)
 
 
