@@ -14,16 +14,17 @@ fits_files = glob.glob("./*calibP")
 for n, fits_file in tqdm(enumerate(fits_files)):
 	fil_file: str = fits_file[:-7] + ".fil"
 	cleaned_file: str = fits_file[:-7] + "_rficleaned.fil"
-	new_fits_file: str = fits_file[:-7] + "_rficleaned.fil"
+	new_fits_file: str = fits_file[:-7] + "_rficleaned.fits"
 
 	# Convert the .fits files to SIGPROC filterbank format files
 	subprocess.run("./digifil -b 8 -d 1 -o" + fil_file + " " + fits_file, shell=True)
 
 	# Clean using RFIClean
 	subprocess.run("./rficlean -t " + str(block_size) + " -psrf " + str(F0) + " -psrfbins " + str(psrfbins) +
-	               " -o " + cleaned_file + fil_file, shell=True)
+	               " -o " + cleaned_file + " " + fil_file, shell=True)
 
-	# Convert back to PSRFits using Your
+	# Convert back to PSRFits using Your (https://thepetabyteproject.github.io/your/0.6.6/)
 	fil_file = your.Your(cleaned_file)
-	writer_object = your.Writer(fil_file, outdir=".", outname=new_fits_file)
+	header = fil_file.your_header
 	writer_object.to_fits()
+	writer_object = your.Writer(fil_file, outdir=".", outname=new_fits_file)

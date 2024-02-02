@@ -195,7 +195,6 @@ def clfd(file, weights, plot=False):
 
     return weights
 
-
 def remove_RFIs(files, binary_files, windows_data, original_weights, rms_array, template_file,
                 clfd_ok: bool = False,
                 mask_rfi_ok: bool = False,

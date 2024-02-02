@@ -270,12 +270,11 @@ if __name__ == '__main__':
 
             #  Iterate over the values of max_eps
 #            max_eps_values = np.arange(start=0.0355, stop=0.0431, step=0.0001, dtype=float)
-            max_eps_values = np.arange(start=0.08, stop=0.58, step=0.01, dtype=float)
-            n_clusters_res = pd.DataFrame(index=max_eps_values, columns=['n_clusters'])
+            max_eps_values = np.round(np.arange(start=0.08, stop=0.58, step=0.01, dtype=float), 2)
             results = pd.DataFrame(index=np.concatenate((np.asarray([0]), max_eps_values)), columns=['n_clusters', 'TOA', 'sigma_TOA'])
 
             # The first row is the results when no clustering is used
-            results.loc[0, 'n_clusters'] = np.asarray([1])
+            results.loc[0, 'n_clusters'] = np.asarray(1)
             results.loc[0, 'TOA':'sigma_TOA'] = np.asarray(non_clustered_res)
 
             for max_eps in max_eps_values:
@@ -286,10 +285,9 @@ if __name__ == '__main__':
                 clusters_file: str = results_dir_3 + str(max_eps) + "_OPTICS_features.pkl"
 
                 clustered_data, cluster_indexes = classification.OPTICS_classifier(org_features=org_features, max_eps=max_eps)
-                print(f"{max_eps} results in {len(cluster_indexes)} clusters")
-                n_clusters_res[max_eps, 'n_clusters'] = len(cluster_indexes)
-
+#                print(f"{max_eps} results in {len(cluster_indexes)} clusters")
                 results.loc[max_eps, 'n_clusters'] = len(cluster_indexes)
+
                 clustered_data.to_pickle(clusters_file)
 
                 # Create a folder to dump the results of this value of max_eps
