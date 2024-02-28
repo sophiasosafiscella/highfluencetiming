@@ -159,11 +159,11 @@ def meanshift_classifier(org_features):
 
     return org_features, n_clusters
 
-def OPTICS_classifier(org_features, max_eps):
+def OPTICS_classifier(org_features, max_eps, min_cluster_size):
 
     features = StandardScaler().fit_transform(org_features)
 
-    clustering = OPTICS(cluster_method='xi', max_eps=max_eps, min_cluster_size=0.10)
+    clustering = OPTICS(cluster_method='xi', max_eps=max_eps, min_cluster_size=min_cluster_size)
     clustering.fit(features)                              # perform the classification
     labels = clustering.labels_                          # labels of each point
 
