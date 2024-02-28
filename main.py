@@ -290,7 +290,7 @@ if __name__ == '__main__':
                     os.makedirs(results_dir_4)
 
     #            8) Perform the classification
-                clusters_file: str = results_dir_4 + "/" +  str(max_eps) + "_OPTICS_features.pkl"
+                clusters_file: str = results_dir_4 + "/" + str(max_eps) + "_OPTICS_features.pkl"
 
                 clustered_data, cluster_indexes = classification.OPTICS_classifier(org_features=org_features, max_eps=max_eps, min_cluster_size=min_cluster_size)
 #                print(f"{max_eps} results in {len(cluster_indexes)} clusters")
