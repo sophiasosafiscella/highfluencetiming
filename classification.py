@@ -4,12 +4,11 @@ import matplotlib.pyplot as plt
 from matplotlib.ticker import MaxNLocator
 import os
 import pypulse as pyp
-import sys
 
 from IPython.display import display
 
 from sklearn.preprocessing import StandardScaler
-from sklearn.cluster import AffinityPropagation, KMeans, MeanShift, OPTICS
+from sklearn.cluster import AffinityPropagation, KMeans, MeanShift, OPTICS, DBSCAN
 
 def plot_data(X):
     plt.plot(X[:, 0], X[:, 1], 'k.', markersize=2)
@@ -132,10 +131,7 @@ def kmeans_classifier(org_features, k, plot=False):
         plt.show()
 
     # Save the data to a Pandas dataframe
-    org_features['Cluster'] = y_pred.astype(int)
-    org_features['Cluster'] = org_features['Cluster'].astype(str)
-
-#    np.save(fits_file[10:-6] + '_kmeans_clusters.npy', np.concatenate((org_features, y_pred.reshape(-1, 1)), axis=1))
+    org_features['Cluster'] = y_pred.astype(int).astype(str)
 
     return org_features
 
@@ -154,8 +150,7 @@ def meanshift_classifier(org_features):
     n_clusters: int = len(labels_unique)
 
     # Save the data to a Pandas dataframe
-    org_features['Cluster'] = labels.astype(int)
-    org_features['Cluster'] = org_features['Cluster'].astype(str)
+    org_features['Cluster'] = labels.astype(int).astype(str)
 
     return org_features, n_clusters
 
@@ -171,10 +166,27 @@ def OPTICS_classifier(org_features, max_eps, min_cluster_size):
     cluster_indexes = np.unique(labels)
 
     # Save the data to a Pandas dataframe
-    org_features['Cluster'] = labels.astype(int)
-    org_features['Cluster'] = org_features['Cluster'].astype(str)
+    org_features['Cluster'] = labels.astype(int).astype(str)
 
     return org_features, cluster_indexes
+
+def DBSCAN_classifier(org_features, eps, min_samples):
+
+    features = StandardScaler().fit_transform(org_features)
+
+    clustering = DBSCAN(eps=eps, min_samples=min_samples)
+    clustering.fit(features)                              # perform the classification
+    labels = clustering.labels_                               # labels of each point
+
+    # Find the number of clusters
+    cluster_indexes = np.unique(labels)
+
+    # Save the data to a Pandas dataframe
+    org_features['Cluster'] = labels.astype(int).astype(str)
+
+    return org_features, cluster_indexes
+
+
 
 
 def clean_artifacts(cluster_average_pulse, clean_window, delta: int = 20):
