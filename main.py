@@ -5,7 +5,6 @@
 import numpy as np
 import pandas as pd
 import glob
-import sys
 import pypulse as pyp
 import matplotlib.pyplot as plt
 from observations_utils import to_binary_and_calculate_rms, create_ds, merge
