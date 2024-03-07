@@ -27,8 +27,8 @@ if __name__ == '__main__':
     classifier: str = "OPTICS"        # Options: "Kmeans", "OPTICS", "MeanShift", or "AffinityPropagation"
     results_dir: str = "./results/pol_calibrated/" + band + "_meerguard_pazr/"  # Directory with the results
 
-    pulses_dir: str = "./data/pol_calibrated/" + band + "/"
-#    pulses_dir: str = "/minish/svs00006/J2145_observations/" + band + "/folded/pol_calibrated/"
+#    pulses_dir: str = "./data/pol_calibrated/" + band + "/"
+    pulses_dir: str = "/minish/svs00006/J2145_observations/" + band + "/folded/pol_calibrated/"
 
     if band == "L_band":
         files = sorted(glob.glob(pulses_dir + "GUPPI*calibP"))[:1714]  # Files containing the observations
@@ -270,7 +270,7 @@ if __name__ == '__main__':
 
             #  Iterate over the values of max_eps
 #            max_eps_values = np.arange(start=0.0355, stop=0.0431, step=0.0001, dtype=float)
-            min_cluster_size: float = 0.02
+            min_cluster_size: float = 0.04
             max_eps_values = np.round(np.arange(start=0.08, stop=0.68, step=0.01, dtype=float), 2)
             results = pd.DataFrame(index=np.concatenate((np.asarray([0]), max_eps_values)), columns=['n_clusters', 'TOA', 'sigma_TOA'])
 
