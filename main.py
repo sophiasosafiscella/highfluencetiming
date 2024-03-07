@@ -319,7 +319,8 @@ if __name__ == '__main__':
         elif classifier == "DBSCAN":
 
             #  Iterate over the cluster size. A float between 0 and 1 indicates the fraction of the number of samples.
-            for min_samples in [0.01, 0.02, 0.03, 0.04, 0.05, 0.06]:
+            for min_samples_fraction in [0.01, 0.02, 0.03, 0.04, 0.05, 0.06]:
+                min_samples: int = round(org_features.shape[0] / 100.0 * min_samples_fraction, 0)
 
                 eps_values = np.round(np.arange(start=0.08, stop=0.58, step=0.01, dtype=float), 2)
                 results = pd.DataFrame(index=np.concatenate((np.asarray([0]), eps_values)),
