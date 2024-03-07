@@ -372,7 +372,6 @@ if __name__ == '__main__':
                 results.to_pickle(results_dir_3 + "results.pkl")
 
 
-
         elif classifier == "AffinityPropagation":
 
             #   8) Perform the classification
