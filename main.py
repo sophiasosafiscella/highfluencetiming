@@ -271,49 +271,50 @@ if __name__ == '__main__':
             #  Iterate over the values of max_eps
 #            max_eps_values = np.arange(start=0.0355, stop=0.0431, step=0.0001, dtype=float)
             min_cluster_size: float = 0.04
-            max_eps_values = np.round(np.arange(start=0.08, stop=0.68, step=0.01, dtype=float), 2)
-            results = pd.DataFrame(index=np.concatenate((np.asarray([0]), max_eps_values)), columns=['n_clusters', 'TOA', 'sigma_TOA'])
+            for min_cluster_size in [0.05, 0.06, 0.07, 0.08, 0.09, 0.1, 0.11, 0.12, 0.13, 0.14]:
+                max_eps_values = np.round(np.arange(start=0.08, stop=0.68, step=0.01, dtype=float), 2)
+                results = pd.DataFrame(index=np.concatenate((np.asarray([0]), max_eps_values)), columns=['n_clusters', 'TOA', 'sigma_TOA'])
 
-            results_dir_3 = results_dir_2 + classifier + "_min_cluster_size_" + str(min_cluster_size) + "/"
-            if not os.path.isdir(results_dir_3):
-                os.makedirs(results_dir_3)
+                results_dir_3 = results_dir_2 + classifier + "_min_cluster_size_" + str(min_cluster_size) + "/"
+                if not os.path.isdir(results_dir_3):
+                    os.makedirs(results_dir_3)
 
-            # The first row is the results when no clustering is used
-            results.loc[0, 'n_clusters'] = np.asarray(1)
-            results.loc[0, 'TOA':'sigma_TOA'] = np.asarray(non_clustered_res)
+                # The first row is the results when no clustering is used
+                results.loc[0, 'n_clusters'] = np.asarray(1)
+                results.loc[0, 'TOA':'sigma_TOA'] = np.asarray(non_clustered_res)
 
-            for max_eps in max_eps_values:
+                for max_eps in max_eps_values:
 
-                # Create a folder to dump the results of this value of max_eps
-                results_dir_4: str = results_dir_3 + str(max_eps) + "_maxeps"
-                if not os.path.isdir(results_dir_4):
-                    os.makedirs(results_dir_4)
+                    # Create a folder to dump the results of this value of max_eps
+                    results_dir_4: str = results_dir_3 + str(max_eps) + "_maxeps"
+                    if not os.path.isdir(results_dir_4):
+                        os.makedirs(results_dir_4)
 
-    #            8) Perform the classification
-                clusters_file: str = results_dir_4 + "/" + str(max_eps) + "_OPTICS_features.pkl"
+        #            8) Perform the classification
+                    clusters_file: str = results_dir_4 + "/" + str(max_eps) + "_OPTICS_features.pkl"
 
-                clustered_data, cluster_indexes = classification.OPTICS_classifier(org_features=org_features, max_eps=max_eps, min_cluster_size=min_cluster_size)
-#                print(f"{max_eps} results in {len(cluster_indexes)} clusters")
-                results.loc[max_eps, 'n_clusters'] = len(cluster_indexes)
+                    clustered_data, cluster_indexes = classification.OPTICS_classifier(org_features=org_features, max_eps=max_eps, min_cluster_size=min_cluster_size)
+    #                print(f"{max_eps} results in {len(cluster_indexes)} clusters")
+                    results.loc[max_eps, 'n_clusters'] = len(cluster_indexes)
 
-                clustered_data.to_pickle(clusters_file)
+                    clustered_data.to_pickle(clusters_file)
 
-                #   9) Calculate the TOAs and sigma_TOAs for the different clusters
-                clusters_toas = classification.time_clusters(cluster_indexes, results_dir_4, clustered_data,
-                                                             unnormalized_data, bin_to_musec, files[0])
+                    #   9) Calculate the TOAs and sigma_TOAs for the different clusters
+                    clusters_toas = classification.time_clusters(cluster_indexes, results_dir_4, clustered_data,
+                                                                 unnormalized_data, bin_to_musec, files[0])
 
-                # Save the results for this number of cluster to an output fits_file
-                max_eps_results: str = results_dir_3 + str(max_eps) + "_maxeps/" + str(max_eps) + "_maxeps_results.plk"
-                clusters_toas.to_pickle(max_eps_results)
+                    # Save the results for this number of cluster to an output fits_file
+                    max_eps_results: str = results_dir_3 + str(max_eps) + "_maxeps/" + str(max_eps) + "_maxeps_results.plk"
+                    clusters_toas.to_pickle(max_eps_results)
 
-                # Save the results to the general results dataframe
-                results.loc[max_eps, 'TOA':'sigma_TOA'] = np.asarray(weighted_moments(series=clusters_toas["TOA"].to_numpy(),
-                                                                                weights=clusters_toas[
-                                                                                    "1/sigma^2"].to_numpy(),
-                                                                                unbiased=False, harmonic=True))
+                    # Save the results to the general results dataframe
+                    results.loc[max_eps, 'TOA':'sigma_TOA'] = np.asarray(weighted_moments(series=clusters_toas["TOA"].to_numpy(),
+                                                                                    weights=clusters_toas[
+                                                                                        "1/sigma^2"].to_numpy(),
+                                                                                    unbiased=False, harmonic=True))
 
-            # Save the final results
-            results.to_pickle(results_dir_3 + "results.pkl")
+                # Save the final results
+                results.to_pickle(results_dir_3 + "results.pkl")
 
         elif classifier == "DBSCAN":
 
