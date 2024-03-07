@@ -270,8 +270,7 @@ if __name__ == '__main__':
 
             #  Iterate over the values of max_eps
 #            max_eps_values = np.arange(start=0.0355, stop=0.0431, step=0.0001, dtype=float)
-            min_cluster_size: float = 0.04
-            for min_cluster_size in [0.05, 0.06, 0.07, 0.08, 0.09, 0.1, 0.11, 0.12, 0.13, 0.14]:
+            for min_cluster_size in [0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1, 0.11, 0.12, 0.13, 0.14]:
                 max_eps_values = np.round(np.arange(start=0.08, stop=0.68, step=0.01, dtype=float), 2)
                 results = pd.DataFrame(index=np.concatenate((np.asarray([0]), max_eps_values)), columns=['n_clusters', 'TOA', 'sigma_TOA'])
 
