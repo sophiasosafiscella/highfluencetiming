@@ -24,7 +24,6 @@ if __name__ == '__main__':
     #   0) Get the fits_file names
     band: str = "820_band"
     classifier: str = "DBSCAN"        # Options: "Kmeans", "OPTICS", "MeanShift", or "AffinityPropagation"
-    eps_values = [1.0]
     results_dir: str = "./results/pol_calibrated/" + band + "_meerguard_pazr/"  # Directory with the results
 
 #    pulses_dir: str = "./data/pol_calibrated/" + band + "/"
@@ -270,8 +269,9 @@ if __name__ == '__main__':
 
             #  Iterate over the values of max_eps
 #            max_eps_values = np.arange(start=0.0355, stop=0.0431, step=0.0001, dtype=float)
-            for min_cluster_size in [0.01, 0.02, 0.03, 0.04, 0.05, 0.06]:
-                max_eps_values = np.round(np.arange(start=0.08, stop=0.68, step=0.01, dtype=float), 2)
+            max_eps_values = np.round(np.arange(start=0.5, stop=5.5, step=0.01, dtype=float), 2)
+
+            for min_cluster_size in [0.01]:
                 results = pd.DataFrame(index=np.concatenate((np.asarray([0]), max_eps_values)), columns=['n_clusters', 'TOA', 'sigma_TOA'])
 
                 results_dir_3 = results_dir_2 + classifier + "_min_cluster_size_" + str(min_cluster_size) + "/"
