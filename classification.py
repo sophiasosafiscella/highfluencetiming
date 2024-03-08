@@ -174,7 +174,7 @@ def DBSCAN_classifier(org_features, eps, min_samples):
 
     features = StandardScaler().fit_transform(org_features)
 
-    clustering = DBSCAN(eps=eps, min_samples=min_smaples, algorithm='ball_tree', metric='haversine')
+    clustering = DBSCAN(eps=eps, min_samples=min_samples, algorithm='ball_tree', metric='haversine')
     clustering.fit(features)                              # perform the classification
     labels = clustering.labels_                               # labels of each point
 
