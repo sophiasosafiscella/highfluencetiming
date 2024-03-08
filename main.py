@@ -1,6 +1,7 @@
 
 # -------------------
 # High Fluence Timing
+# by Sophia Valentina Sosa Fiscella
 # -------------------
 import numpy as np
 import pandas as pd
