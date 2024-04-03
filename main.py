@@ -25,7 +25,7 @@ if __name__ == '__main__':
     #   0) Get the fits_file names
     band: str = "L_band"
     classifier: str = "Kmeans"        # Options: "Kmeans", "OPTICS", "MeanShift", or "AffinityPropagation"
-    results_dir: str = "./results/pol_calibrated/" + band + "_everything/"  # Directory with the results
+    results_dir: str = "./results/pol_calibrated/" + band + "_everything_smoothed/"  # Directory with the results
 
     print(f"Results dir: {results_dir}")
 

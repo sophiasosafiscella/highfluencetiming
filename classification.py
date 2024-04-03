@@ -187,18 +187,21 @@ def DBSCAN_classifier(org_features, eps, min_samples):
     return org_features, cluster_indexes
 
 
-
-
 def clean_artifacts(cluster_average_pulse, clean_window, delta: int = 20):
-
     interpolating_bins = np.r_[clean_window[0] - delta: clean_window[0],
                          clean_window[1] + 1: clean_window[1] + 1 + delta]
 
     cluster_average_pulse[clean_window[0]:clean_window[1] + 1] = np.interp(
-        x=np.arange(clean_window[0], clean_window[1] + 1, 1), xp=interpolating_bins,
-        fp=cluster_average_pulse[interpolating_bins])
+        x=np.arange(clean_window[0], clean_window[1] + 1, 1),
+        xp=interpolating_bins, fp=cluster_average_pulse[interpolating_bins])
+
+    opw = np.arange(50, 100)
+    noise_rms = np.std(cluster_average_pulse[opw])
+    noise = np.random.normal(0.0, noise_rms, size=clean_window[1] - clean_window[0] + 1)
+    cluster_average_pulse[clean_window[0]:clean_window[1] + 1] += noise
 
     return cluster_average_pulse
+
 
 def time_clusters(cluster_indexes, results_dir, clustered_data, unnormalized_data, bin_to_musec, first_file,
                   plot_clusters=True):
@@ -223,7 +226,9 @@ def time_clusters(cluster_indexes, results_dir, clustered_data, unnormalized_dat
         cluster_average_pulse = np.average(cluster_pulses.to_numpy(), axis=0)
 
         # Fix for weird artifacts
-        cluster_average_pulse = clean_artifacts(cluster_average_pulse, [224, 227])
+#        cluster_average_pulse = clean_artifacts(cluster_average_pulse, [224, 227])
+        cluster_average_pulse = clean_artifacts(cluster_average_pulse, [222, 238])
+        cluster_average_pulse = clean_artifacts(cluster_average_pulse, [275, 295])
 
         # Copy to an Archive object
         ar.data = np.copy(cluster_average_pulse)
