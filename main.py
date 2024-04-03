@@ -352,7 +352,7 @@ if __name__ == '__main__':
                     # 8) Perform the classification
                     clusters_file: str = results_dir_4 + "/" + str(eps) + "_DBSCAN_features.pkl"
                     print(f"Clusters file = {clusters_file}")
-                    if not os.path.isdir(clusters_file):
+                    if not os.path.isfile(clusters_file):
                         print("Clusters not created. I'll perform the classification...")
                         clustered_data = classification.DBSCAN_classifier(org_features=org_features,
                                                                                            eps=eps,
@@ -369,7 +369,7 @@ if __name__ == '__main__':
 
                     #   9) Calculate the TOAs and sigma_TOAs for the different clusters
                     eps_results: str = results_dir_3 + str(eps) + "_eps/" + str(eps) + "_eps_results.pkl"
-                    if not os.path.isdir(eps_results):
+                    if not os.path.isfile(eps_results):
                         clusters_toas = classification.time_clusters(cluster_indexes, results_dir_4, clustered_data,
                                                                  unnormalized_data, bin_to_musec, files[0])
 
