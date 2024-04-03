@@ -23,9 +23,9 @@ import subprocess
 if __name__ == '__main__':
 
     #   0) Get the fits_file names
-    band: str = "L_band"
+    band: str = "820_band"
     classifier: str = "Kmeans"        # Options: "Kmeans", "OPTICS", "MeanShift", or "AffinityPropagation"
-    results_dir: str = "./results/pol_calibrated/" + band + "_everything/"  # Directory with the results
+    results_dir: str = "./results/pol_calibrated/" + band + "_meerguard_pazr/"  # Directory with the results
 
     print(f"Results dir: {results_dir}")
 
@@ -43,9 +43,9 @@ if __name__ == '__main__':
     time_sp: bool = False
 
     meerguard_ok: bool = True     # Clean using MeerGuard?
-    clfd_ok: bool = True          # Clean using clfd?
-    mask_RFI_ok: bool = True      # Clean using mask_RFI?
-    zap_minmax_ok: bool = True    # Clean using zap_minmax?
+    clfd_ok: bool = False          # Clean using clfd?
+    mask_RFI_ok: bool = False      # Clean using mask_RFI?
+    zap_minmax_ok: bool = False    # Clean using zap_minmax?
     chisq_filter_ok: bool = False  # Clean using chisq_filter?
     opw_peaks_ok: bool = False     # Clean using opw_peaks?
 
@@ -277,7 +277,7 @@ if __name__ == '__main__':
             for min_cluster_size in [0.01, 0.02, 0.03, 0.04, 0.05, 0.06]:
                 results = pd.DataFrame(index=np.concatenate((np.asarray([0]), max_eps_values)), columns=['n_clusters', 'TOA', 'sigma_TOA'])
 
-                results_dir_3 = results_dir_2 + classifier + "_min_cluster_size_" + str(min_cluster_size) + "/"
+                results_dir_3 = results_dir_2 + classifier + "_min_cluster_size_" + str(min_cluster_size) + "_old/"
                 if not os.path.isdir(results_dir_3):
                     os.makedirs(results_dir_3)
 
@@ -324,7 +324,7 @@ if __name__ == '__main__':
             #  Iterate over the cluster size. A float between 0 and 1 indicates the fraction of the number of samples.
             eps_values = np.round(np.arange(start=0.59, stop=1.29, step=0.01, dtype=float), 2)
 
-            for min_samples_fraction in [0.035]:
+            for min_samples_fraction in [0.01]:
                 min_samples: int = int(round(org_features.shape[0] * min_samples_fraction, 0))
                 print(f'Processing min_samples={min_samples} and eps={eps_values[0]}')
 
@@ -361,12 +361,17 @@ if __name__ == '__main__':
                     clustered_data.to_pickle(clusters_file)
 
                     #   9) Calculate the TOAs and sigma_TOAs for the different clusters
-                    clusters_toas = classification.time_clusters(cluster_indexes, results_dir_4, clustered_data,
+                    eps_results: str = results_dir_3 + str(eps) + "_eps/" + str(eps) + "_eps_results.pkl"
+                    if not os.path.isdir(eps_results):
+                        clusters_toas = classification.time_clusters(cluster_indexes, results_dir_4, clustered_data,
                                                                  unnormalized_data, bin_to_musec, files[0])
 
-                    # Save the results for this number of cluster to an output file
-                    eps_results: str = results_dir_3 + str(eps) + "_eps/" + str(eps) + "_eps_results.pkl"
-                    clusters_toas.to_pickle(eps_results)
+                        # Save the results for this number of cluster to an output file
+                        clusters_toas.to_pickle(eps_results)
+
+                    else:
+                        clusters_toas = pd.read_pickle(eps_results)
+
 
                     # Save the results to the general results dataframe
                     results.loc[eps, 'TOA':'sigma_TOA'] = np.asarray(
