@@ -27,8 +27,6 @@ if __name__ == '__main__':
     classifier: str = "DBSCAN"        # Options: "Kmeans", "OPTICS", "MeanShift", or "AffinityPropagation"
     results_dir: str = "./results/pol_calibrated/" + band + "_meerguard_pazr/"  # Directory with the results
 
-    print(f"Results dir: {results_dir}")
-
 #    pulses_dir: str = "./data/pol_calibrated/" + band + "/"
     pulses_dir: str = "/minish/svs00006/J2145_observations/" + band + "/folded/pol_calibrated/"
 
@@ -320,6 +318,8 @@ if __name__ == '__main__':
                 results.to_pickle(results_dir_3 + "results.pkl")
 
         elif classifier == "DBSCAN":
+
+            print(f"Results dir = {results_dir_2}")
 
             #  Iterate over the cluster size. A float between 0 and 1 indicates the fraction of the number of samples.
             eps_values = np.round(np.arange(start=0.51, stop=1.08, step=0.01, dtype=float), 2)
