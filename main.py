@@ -343,6 +343,8 @@ if __name__ == '__main__':
 
                 for eps in eps_values:
 
+                    print(f"Calculating eps={eps}")
+
                     # Create a folder to dump the results of this value of eps
                     results_dir_4: str = results_dir_3 + str(eps) + "_eps"
                     if not os.path.isdir(results_dir_4):
