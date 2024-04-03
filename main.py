@@ -24,7 +24,7 @@ if __name__ == '__main__':
 
     #   0) Get the fits_file names
     band: str = "820_band"
-    classifier: str = "Kmeans"        # Options: "Kmeans", "OPTICS", "MeanShift", or "AffinityPropagation"
+    classifier: str = "DBSCAN"        # Options: "Kmeans", "OPTICS", "MeanShift", or "AffinityPropagation"
     results_dir: str = "./results/pol_calibrated/" + band + "_meerguard_pazr/"  # Directory with the results
 
     print(f"Results dir: {results_dir}")
@@ -349,16 +349,19 @@ if __name__ == '__main__':
                         os.makedirs(results_dir_4)
 
                     # 8) Perform the classification
-                    clustered_data, cluster_indexes = classification.DBSCAN_classifier(org_features=org_features,
-                                                                                       eps=eps,
-                                                                                       min_samples=min_samples)
+                    clusters_file: str = results_dir_4 + "/" + str(eps) + "_DBSCAN_features.pkl"
+                    if not os.path.isdir(clusters_file):
+                        clustered_data, cluster_indexes = classification.DBSCAN_classifier(org_features=org_features,
+                                                                                           eps=eps,
+                                                                                           min_samples=min_samples)
+                        # Save the features
+                        clustered_data.to_pickle(clusters_file)
+
+                    else:
+                        clustered_data = pd.read_pickle(clusters_file)
 
                     # Save the number of clusters
-                    results.loc[eps, 'n_clusters'] = len(cluster_indexes)
-
-                    # Save the features
-                    clusters_file: str = results_dir_4 + "/" + str(eps) + "_DBSCAN_features.pkl"
-                    clustered_data.to_pickle(clusters_file)
+                    results.loc[eps, 'n_clusters'] = len(clustered_data.Cluster.unique())
 
                     #   9) Calculate the TOAs and sigma_TOAs for the different clusters
                     eps_results: str = results_dir_3 + str(eps) + "_eps/" + str(eps) + "_eps_results.pkl"

@@ -178,13 +178,10 @@ def DBSCAN_classifier(org_features, eps, min_samples):
     clustering.fit(features)                              # perform the classification
     labels = clustering.labels_                               # labels of each point
 
-    # Find the number of clusters
-    cluster_indexes = np.unique(labels)
-
     # Save the data to a Pandas dataframe
     org_features['Cluster'] = labels.astype(int).astype(str)
 
-    return org_features, cluster_indexes
+    return org_features
 
 
 def clean_artifacts(cluster_average_pulse, clean_window, delta: int = 20):
