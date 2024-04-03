@@ -23,9 +23,11 @@ import subprocess
 if __name__ == '__main__':
 
     #   0) Get the fits_file names
-    band: str = "820_band"
-    classifier: str = "DBSCAN"        # Options: "Kmeans", "OPTICS", "MeanShift", or "AffinityPropagation"
-    results_dir: str = "./results/pol_calibrated/" + band + "_meerguard_pazr/"  # Directory with the results
+    band: str = "L_band"
+    classifier: str = "Kmeans"        # Options: "Kmeans", "OPTICS", "MeanShift", or "AffinityPropagation"
+    results_dir: str = "./results/pol_calibrated/" + band + "_everything/"  # Directory with the results
+
+    print(f"Results dir: {results_dir}")
 
 #    pulses_dir: str = "./data/pol_calibrated/" + band + "/"
     pulses_dir: str = "/minish/svs00006/J2145_observations/" + band + "/folded/pol_calibrated/"
@@ -41,10 +43,10 @@ if __name__ == '__main__':
     time_sp: bool = False
 
     meerguard_ok: bool = True     # Clean using MeerGuard?
-    clfd_ok: bool = False          # Clean using clfd?
-    mask_RFI_ok: bool = False      # Clean using mask_RFI?
-    zap_minmax_ok: bool = False    # Clean using zap_minmax?
-    chisq_filter_ok: bool = False   # Clean using chisq_filter?
+    clfd_ok: bool = True          # Clean using clfd?
+    mask_RFI_ok: bool = True      # Clean using mask_RFI?
+    zap_minmax_ok: bool = True    # Clean using zap_minmax?
+    chisq_filter_ok: bool = False  # Clean using chisq_filter?
     opw_peaks_ok: bool = False     # Clean using opw_peaks?
 
     binary_out_dir: str = pulses_dir + "binary/"
@@ -320,9 +322,9 @@ if __name__ == '__main__':
         elif classifier == "DBSCAN":
 
             #  Iterate over the cluster size. A float between 0 and 1 indicates the fraction of the number of samples.
-            eps_values = np.round(np.arange(start=0.75, stop=1.25, step=0.01, dtype=float), 2)
+            eps_values = np.round(np.arange(start=0.59, stop=1.29, step=0.01, dtype=float), 2)
 
-            for min_samples_fraction in [0.01]:
+            for min_samples_fraction in [0.035]:
                 min_samples: int = int(round(org_features.shape[0] * min_samples_fraction, 0))
                 print(f'Processing min_samples={min_samples} and eps={eps_values[0]}')
 
