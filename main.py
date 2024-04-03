@@ -333,7 +333,7 @@ if __name__ == '__main__':
                                        columns=['n_clusters', 'TOA', 'sigma_TOA'])
 
                 # Create folder to save the results
-                results_dir_3 = results_dir_2 + classifier + "_min_samples_" + str(min_samples) + "/"
+                results_dir_3 = results_dir_2 + classifier + "_min_samples_" + str(min_samples) + "_old/"
                 if not os.path.isdir(results_dir_3):
                     os.makedirs(results_dir_3)
 
