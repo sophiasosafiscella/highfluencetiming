@@ -351,6 +351,7 @@ if __name__ == '__main__':
 
                     # 8) Perform the classification
                     clusters_file: str = results_dir_4 + "/" + str(eps) + "_DBSCAN_features.pkl"
+                    print(f"Clusters file = {clusters_file}")
                     if not os.path.isdir(clusters_file):
                         print("Clusters not created. I'll perform the classification...")
                         clustered_data = classification.DBSCAN_classifier(org_features=org_features,
