@@ -322,11 +322,11 @@ if __name__ == '__main__':
         elif classifier == "DBSCAN":
 
             #  Iterate over the cluster size. A float between 0 and 1 indicates the fraction of the number of samples.
-            eps_values = np.round(np.arange(start=0.59, stop=1.29, step=0.01, dtype=float), 2)
+            eps_values = np.round(np.arange(start=0.51, stop=1.08, step=0.01, dtype=float), 2)
 
             for min_samples_fraction in [0.01]:
                 min_samples: int = int(round(org_features.shape[0] * min_samples_fraction, 0))
-                print(f'Processing min_samples={min_samples} and eps={eps_values[0]}')
+                print(f'Processing min_samples={min_samples}    ')
 
 #                eps_values = np.round(np.arange(start=0.28, stop=0.58, step=0.01, dtype=float), 2)
                 results = pd.DataFrame(index=np.concatenate((np.asarray([0]), eps_values)),
@@ -353,13 +353,15 @@ if __name__ == '__main__':
                     # 8) Perform the classification
                     clusters_file: str = results_dir_4 + "/" + str(eps) + "_DBSCAN_features.pkl"
                     if not os.path.isdir(clusters_file):
-                        clustered_data, cluster_indexes = classification.DBSCAN_classifier(org_features=org_features,
+                        print("Clusters not created. I'll perform the classification...")
+                        clustered_data = classification.DBSCAN_classifier(org_features=org_features,
                                                                                            eps=eps,
                                                                                            min_samples=min_samples)
                         # Save the features
                         clustered_data.to_pickle(clusters_file)
 
                     else:
+                        print("Clusters already created")
                         clustered_data = pd.read_pickle(clusters_file)
 
                     # Save the number of clusters
