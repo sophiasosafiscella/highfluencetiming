@@ -319,8 +319,6 @@ if __name__ == '__main__':
 
         elif classifier == "DBSCAN":
 
-            print(f"Results dir = {results_dir_2}")
-
             #  Iterate over the cluster size. A float between 0 and 1 indicates the fraction of the number of samples.
             eps_values = np.round(np.arange(start=0.51, stop=1.08, step=0.01, dtype=float), 2)
 
@@ -334,6 +332,7 @@ if __name__ == '__main__':
 
                 # Create folder to save the results
                 results_dir_3 = results_dir_2 + classifier + "_min_samples_" + str(min_samples) + "_old/"
+                print(f"Results dir = {results_dir_3}")
                 if not os.path.isdir(results_dir_3):
                     os.makedirs(results_dir_3)
 
