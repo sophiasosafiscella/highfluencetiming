@@ -224,8 +224,8 @@ def time_clusters(cluster_indexes, results_dir, clustered_data, unnormalized_dat
 
         # Fix for weird artifacts
 #        cluster_average_pulse = clean_artifacts(cluster_average_pulse, [224, 227])
-#        cluster_average_pulse = clean_artifacts(cluster_average_pulse, [222, 238])
-#        cluster_average_pulse = clean_artifacts(cluster_average_pulse, [275, 295])
+        cluster_average_pulse = clean_artifacts(cluster_average_pulse, [222, 238])
+        cluster_average_pulse = clean_artifacts(cluster_average_pulse, [275, 295])
 
         # Copy to an Archive object
         ar.data = np.copy(cluster_average_pulse)
