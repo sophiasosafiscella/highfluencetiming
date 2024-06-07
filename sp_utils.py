@@ -100,7 +100,7 @@ def calculate_sp_snr(files, n_sp):
 
             sp = pyp.SinglePulse(data[i, :], opw=arr)
             snr_values[i] = sp.getSN()
-            if not 0.0 < snr_values[i] < 100.0:
+            if np.isnan(snr_values[i]):
                 print("Error found calculating SNR")
                 print(snr_values[i])
                 print(data[i, :])
