@@ -136,7 +136,7 @@ if __name__ == '__main__':
         weights = np.load(weights_file)
 
     # Inject different levels of noise
-    for noise_factor in [0.0]:
+    for noise_factor in [0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5 ]:
 
         # Create a folder to dump the results of this amount of noise
         results_dir_2 = results_dir + str(noise_factor) + "_sigma/"
