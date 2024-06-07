@@ -24,7 +24,7 @@ import sys
 if __name__ == '__main__':
 
     #   0) Get the fits_file names
-    band: str = "L_band"
+    band: str = "820_band"
     classifier: str = "Kmeans"        # Options: "Kmeans", "OPTICS", "MeanShift", or "AffinityPropagation"
     results_dir: str = "./results/pol_calibrated/" + band + "_everything_smoothed/"  # Directory with the results
 
