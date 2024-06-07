@@ -103,9 +103,9 @@ def calculate_sp_snr(files, n_sp):
             snr_values[n] = sp.getSN()
             n =+ 1
 
-            if np.isnan(snr_values[i]):
+            if np.isnan(snr_values[n]):
                 print("Error found calculating SNR")
-                print(snr_values[i])
+                print(snr_values[n])
                 print(data[i, :])
 
     return snr_values
