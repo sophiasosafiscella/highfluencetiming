@@ -17,7 +17,7 @@ def time_single_pulses(files, results_dir, k, cluster_index, cluster_pulses, smo
 
     bin_to_musec = (ar.getPeriod() / ar.getNbin()) * 10 ** 6
 
-    # Calculate the residual for each single pulse in the cluster_sp_times
+    # Calculate the TOA for each single pulse in the cluster_sp_times
     # using this smoothed pulse as the template
     # Keep in mind that the row label is the time in seconds
 

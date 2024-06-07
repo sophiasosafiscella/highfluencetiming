@@ -15,6 +15,7 @@ from timing_utils import time_single_pulses, weighted_moments
 from RFI_utils import remove_RFIs, meerguard
 import os
 import subprocess
+import sys
 
 # IMPORTANT: we're assuming that the observations has already been processed
 #            with 512 phase bins and 128 single pulses per fits_file
@@ -102,6 +103,10 @@ if __name__ == '__main__':
             files = sorted(glob.glob(pulses_dir + "cleaned/*_cleaned.ar"))  # Files containing the observations
         elif band == "820_band":
             files = sorted(glob.glob(pulses_dir + "cleaned/*_cleaned.ar"))
+
+    snr_values = sp_utils.calculate_sp_snr(files, sp_total)
+    np.save("./snr_values.npy", snr_values)
+    sys.exit()
 
     #   4) Convert the observations to binary and weight them according to the off-pulse noise RMS
     if len(glob.glob(binary_out_dir + "*J2145*npy")) < len(files) or len(glob.glob(basic_weights_file)) == 0:

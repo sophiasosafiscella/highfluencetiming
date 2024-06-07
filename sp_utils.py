@@ -78,6 +78,32 @@ def calculate_rms(files, n_sp, n_chan):
 
     return rms_values
 
+def calculate_sp_snr(files, n_sp):
+
+    # Create an array to store the sn values
+    arr = np.arange(0, 100)
+    snr_values = np.full(n_sp, np.nan)
+
+    # Iterate over the files
+    n: int = 0
+    for k, file in tqdm(enumerate(files)):
+
+        ar = pyp.Archive(file, verbose=False)
+        ar.fscrunch()
+
+        # Extract the data form the observationsp = pyp.SinglePulse(data[i, j, :], opw=arr)
+        data = ar.getData()  # (128 single pulses x 128 frequency channels x 2048 phase bins) -> in this order
+
+        # Iterate over the sub-integrations
+        for i in range(ar.getNsubint()):
+
+            sp = pyp.SinglePulse(data[i, :], opw=arr)
+            snr_values[n] = sp.getSN()
+
+        n += 1
+
+    return snr_values
+
 
 def get_average_pulse(pulses_files, nbins):
 
