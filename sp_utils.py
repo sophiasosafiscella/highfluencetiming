@@ -80,6 +80,8 @@ def calculate_rms(files, n_sp, n_chan):
 
 def calculate_sp_snr(files, n_sp):
 
+    print("Calculating SP SNR")
+
     # Create an array to store the sn values
     arr = np.arange(0, 100)
     snr_values = np.full(n_sp, np.nan)
