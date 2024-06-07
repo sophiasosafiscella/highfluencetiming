@@ -106,6 +106,7 @@ if __name__ == '__main__':
 
     snr_values = sp_utils.calculate_sp_snr(files, sp_total)
     np.save("./snr_values.npy", snr_values)
+
     sys.exit()
 
     #   4) Convert the observations to binary and weight them according to the off-pulse noise RMS
