@@ -87,6 +87,7 @@ def calculate_sp_snr(files, n_sp):
     snr_values = np.full(n_sp, np.nan)
 
     # Iterate over the files
+    n:int = 0
     for file in tqdm(files):
 
         ar = pyp.Archive(file, verbose=False)
@@ -99,7 +100,9 @@ def calculate_sp_snr(files, n_sp):
         for i in range(ar.getNsubint()):
 
             sp = pyp.SinglePulse(data[i, :], opw=arr)
-            snr_values[i] = sp.getSN()
+            snr_values[n] = sp.getSN()
+            n =+ 1
+
             if np.isnan(snr_values[i]):
                 print("Error found calculating SNR")
                 print(snr_values[i])
