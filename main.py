@@ -104,7 +104,7 @@ if __name__ == '__main__':
         elif band == "820_band":
             files = sorted(glob.glob(pulses_dir + "cleaned/*_cleaned.ar"))
 
-    if len(glob.glob("./snr_values.npy")) == 0:
+    if len(glob.glob("./snr_values.npy")) != 0:
         snr_values = sp_utils.calculate_sp_snr(files, sp_total)
         np.save("./snr_values.npy", snr_values)
 
@@ -135,7 +135,7 @@ if __name__ == '__main__':
         weights = np.load(weights_file)
 
     # Inject different levels of noise
-    for noise_factor in [0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5 ]:
+    for noise_factor in [0.0]:
 
         # Create a folder to dump the results of this amount of noise
         results_dir_2 = results_dir + str(noise_factor) + "_sigma/"

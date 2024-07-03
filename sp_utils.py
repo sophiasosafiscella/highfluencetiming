@@ -381,7 +381,7 @@ def get_params(data_file, windows, results_dir, plot=False):
         baseline = np.average(pulses_data[i, windows[0, 0]:windows[0, 1]])
 
         lse_peak_amp[i], lse_pos[i], lse_width[i] = estimate_peak(window_data[i, :], windows,
-                                                                  np.average(window_data[i, 0:4]), i, plot=False)
+                                                                  np.average(window_data[i, 0:4]), i, plot=plot)
         lse_energy[i] = get_energy(pulses_data[i, :], windows, baseline)
 
     #        if lse_energy[i] > 100.0 or lse_peak_amp[i] > 100.0 or lse_energy[i] < -30.0:
