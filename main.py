@@ -26,8 +26,7 @@ if __name__ == '__main__':
     #   0) Get the fits_file names
     band: str = "820_band"
     classifier: str = "Kmeans"        # Options: "Kmeans", "OPTICS", "MeanShift", or "AffinityPropagation"
-#    results_dir: str = "./results/pol_calibrated/" + band + "_everything_smoothed/"  # Directory with the results
-    results_dir: str = "./results/pol_calibrated/" + band + "_meerguard_pazr/"
+    results_dir: str = "./results/pol_calibrated/" + band + "_meerguard_pazr/"  # Directory with the results
 
 #    pulses_dir: str = "./data/pol_calibrated/" + band + "/"
     pulses_dir: str = "/minish/svs00006/J2145_observations/" + band + "/folded/pol_calibrated/"
@@ -105,10 +104,9 @@ if __name__ == '__main__':
         elif band == "820_band":
             files = sorted(glob.glob(pulses_dir + "cleaned/*_cleaned.ar"))
 
-    snr_values = sp_utils.calculate_sp_snr(files, sp_total)
-    np.save("./results/snr_values_" + band + ".npy", snr_values)
-
-    sys.exit()
+    if len(glob.glob("./snr_values.npy")) == 0:
+        snr_values = sp_utils.calculate_sp_snr(files, sp_total)
+        np.save("./snr_values.npy", snr_values)
 
     #   4) Convert the observations to binary and weight them according to the off-pulse noise RMS
     if len(glob.glob(binary_out_dir + "*J2145*npy")) < len(files) or len(glob.glob(basic_weights_file)) == 0:
@@ -189,7 +187,7 @@ if __name__ == '__main__':
         #   8) Create the features for each single pulse
         if len(glob.glob(features_file)) == 0:
             print("Features not found. I'll create them...")
-            org_features = sp_utils.get_params(merged_normalized_file, windows_data, results_dir=results_dir_2, plot=False)
+            org_features = sp_utils.get_params(merged_normalized_file, windows_data, results_dir=results_dir_2, plot=True)
             org_features.to_pickle(features_file)
         else:
             org_features = pd.read_pickle(features_file)
