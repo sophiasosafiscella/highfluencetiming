@@ -337,8 +337,8 @@ def estimate_peak(window_data, windows, baseline, window_index, plot=False):
         props = dict(boxstyle='round', facecolor='white', alpha=0.5)
 
         # place a text box in upper left in axes coords
-        ax.text(0.70, 0.95, textstr, transform=ax.transAxes, fontsize=12,
-                verticalalignment='top', bbox=props)
+#        ax.text(0.70, 0.95, textstr, transform=ax.transAxes, fontsize=12,
+#                verticalalignment='top', bbox=props)
 
         ax.set_xlabel("Bins")
         ax.set_ylabel("Intensity")
