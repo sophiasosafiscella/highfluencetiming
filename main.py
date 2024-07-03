@@ -194,6 +194,8 @@ if __name__ == '__main__':
         else:
             org_features = pd.read_pickle(features_file)
 
+        sys.exit()
+
         # Create a folder to dump the results of this classifier
         results_dir_3 = results_dir_2 + classifier + "/"
         results_file: str = results_dir_3 + "results.pkl"
