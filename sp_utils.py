@@ -272,8 +272,8 @@ def find_windows(template_file: str,  # name of the template fits_file
     return np.vstack((offpulsewindow, [left_margin, right_margin], energy_windows))
 
 
-def gaussian(x, amplitude, mean, stddev):
-    return amplitude * np.exp(-((x - mean) / 4 / stddev) ** 2)
+def gaussian(x, amplitude, mean, stddev, baseline):
+    return amplitude * np.exp(-((x - mean) / 4 / stddev) ** 2) # + baseline
 
 
 def estimate_peak(window_data, windows, baseline, window_index, plot=False):
@@ -294,6 +294,8 @@ def estimate_peak(window_data, windows, baseline, window_index, plot=False):
     #    print("peak index = " + str(peak_index))
     #    print("max in window = " + str(np.max(window_data)))
     params.add("stddev", value=1.0, min=0.0)
+#    params.add("baseline", value=baseline)
+#    params['baseline'].vary = False
     result = gmodel.fit(window_data, params, x=x_data)
 
 
@@ -305,8 +307,8 @@ def estimate_peak(window_data, windows, baseline, window_index, plot=False):
     peak_amp = np.max(window_data) - baseline
     peak_pos = new_x[np.argmax(new_y)]
 #    peak_width = peak_widths(window_data, np.array([np.argmax(window_data)]), rel_height=0.5)[0][0]
-    peak_width = peak_widths(new_y, [np.argmax(new_y)], rel_height=0.5)[0][0]
-
+#    peak_width = peak_widths(new_y, [np.argmax(new_y)], rel_height=0.5)[0][0]
+    peak_width = 2 * result.params["stddev"].value * np.sqrt(2 * np.log(2))
 
     if plot:
         sns.set_style("darkgrid")
@@ -320,15 +322,15 @@ def estimate_peak(window_data, windows, baseline, window_index, plot=False):
         ax.axvline(x=peak_pos, ls="--", c='k', label="Peak position")
         ax.axvline(x=windows[1, 0], ls=":", c="grey")
         ax.axvline(x=windows[1, 1], ls=":", c="grey")
-        ax.fill_between(new_x, baseline, peak_amp,
+        ax.fill_between(new_x, 0, peak_amp,
                         where=(new_x < peak_pos + peak_width) &
                               (new_x > peak_pos - peak_width),
                         color='#B6E880', alpha=0.3, label="Width and Amplitude")  # color="#f9dd9a",
 
-        textstr = '\n'.join((
-            r'$\mathrm{Position}=%i$' % (peak_pos,),
-            r'$\mathrm{Amplitude}=%.4f$' % (peak_amp,),
-            r'$\mathrm{Width}=%.4f$' % (peak_width,)))
+#        textstr = '\n'.join((
+#            r'$\mathrm{Position}=%i$' % (peak_pos,),
+#            r'$\mathrm{Amplitude}=%.4f$' % (peak_amp,),
+#            r'$\mathrm{Width}=%.4f$' % (peak_width,)))
         #            ,r'baseline =%.4f' % (baseline,)))
 
         # these are matplotlib.patch.Patch properties
