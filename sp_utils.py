@@ -272,7 +272,7 @@ def find_windows(template_file: str,  # name of the template fits_file
     return np.vstack((offpulsewindow, [left_margin, right_margin], energy_windows))
 
 
-def gaussian(x, amplitude, mean, stddev, baseline):
+def gaussian(x, amplitude, mean, stddev):
     return amplitude * np.exp(-((x - mean) / 4 / stddev) ** 2) # + baseline
 
 
