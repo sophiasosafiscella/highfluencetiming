@@ -311,9 +311,9 @@ def estimate_peak(window_data, windows, baseline, window_index, plot=False):
         sns.set_context("paper", font_scale=1.4)
 
         fig, ax = plt.subplots()
-        ax.plot(x_data, window_data, c="#f29ad8", label="Original")
-        ax.scatter(x_data, window_data, c="#f29ad8")
-        ax.plot(new_x, new_y, c="#e305ad", label="Fit")
+        ax.plot(x_data, window_data, c="636EFA", label="Original")  # c="#f29ad8"
+        ax.scatter(x_data, window_data, c="636EFA")  #  c="#f29ad8"
+        ax.plot(new_x, new_y, c="#EF553B", label="Fit")  # c="#e305ad",
 
         ax.axvline(x=peak_pos, ls="--", c='k', label="Peak position")
         ax.axvline(x=windows[1, 0], ls=":", c="grey")
@@ -321,7 +321,7 @@ def estimate_peak(window_data, windows, baseline, window_index, plot=False):
         ax.fill_between(new_x, 0, peak_amp + baseline,
                         where=(new_x < peak_pos + peak_width) &
                               (new_x > peak_pos - peak_width),
-                        color="#f9dd9a", alpha=0.3, label="width and amp")
+                        color='#B6E880', alpha=0.3, label="width and amp")  # color="#f9dd9a",
 
         textstr = '\n'.join((
             r'$\mathrm{pos}=%i$' % (peak_pos,),
