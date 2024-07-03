@@ -83,7 +83,7 @@ def calculate_sp_snr(files, n_sp):
     print("Calculating SP SNR")
 
     # Create an array to store the sn values
-    arr = np.arange(0, 100)
+    arr = np.arange(0, 50)
     snr_values = np.full(n_sp, np.nan)
 
     # Iterate over the files
@@ -101,13 +101,14 @@ def calculate_sp_snr(files, n_sp):
 
             sp = pyp.SinglePulse(data[i, :], opw=arr)
             snr_values[n] = sp.getSN()
+            print(snr_values[n])
+            print(n)
+#            if np.isnan(snr_values[n]):
+#                print("Error found calculating SNR")
+#                print(snr_values[n])
+#                print(data[i, :])
 
-            if np.isnan(snr_values[n]):
-                print("Error found calculating SNR")
-                print(snr_values[n])
-                print(data[i, :])
-
-            n = + 1
+            n += 1
 
     return snr_values
 
