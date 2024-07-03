@@ -306,7 +306,11 @@ def estimate_peak(window_data, windows, baseline, window_index, plot=False):
     peak_amp = np.max(window_data) - baseline
     peak_pos = new_x[np.argmax(new_y)]
 #    peak_width = peak_widths(window_data, np.array([np.argmax(window_data)]), rel_height=0.5)[0][0]
-    peak_width = peak_widths(new_y, find_peaks(new_x)[0], rel_height=0.5)[0][0]
+#    peak_idx = [np.argmax(new_y)]
+
+    peaks, _ = find_peaks(new_y)
+    width = peak_widths(new_y, peaks, rel_height=0.5)
+    peak_width = width[0][0]
 #    peak_width = 2 * result.params["stddev"].value * np.sqrt(2 * np.log(2))
 
     if plot:
@@ -314,6 +318,7 @@ def estimate_peak(window_data, windows, baseline, window_index, plot=False):
         sns.set_context("paper", font_scale=1.4)
 
         fig, ax = plt.subplots()
+        ax.plot(new_x[peaks], new_y[peaks], "x")
         ax.plot(x_data, window_data, c="#636EFA", label="Original")  # c="#f29ad8"
         ax.scatter(x_data, window_data, c="#636EFA")  #  c="#f29ad8"
         ax.plot(new_x, new_y, c="#EF553B", label="Fit")  # c="#e305ad",
@@ -321,10 +326,14 @@ def estimate_peak(window_data, windows, baseline, window_index, plot=False):
         ax.axvline(x=peak_pos, ls="--", c='k', label="Peak position")
         ax.axvline(x=windows[1, 0], ls=":", c="grey")
         ax.axvline(x=windows[1, 1], ls=":", c="grey")
-        ax.fill_between(new_x, 0, peak_amp,
-                        where=(new_x < peak_pos + peak_width) &
-                              (new_x > peak_pos - peak_width),
-                        color='#B6E880', alpha=0.3, label="Width")  # color="#f9dd9a",
+#        ax.fill_between(new_x, 0, peak_amp,
+#                        where=(new_x < peak_pos + peak_width/20) &
+#                              (new_x > peak_pos - peak_width/20),
+#                        color='#B6E880', alpha=0.3, label="Width")  # color="#f9dd9a",
+
+        print(*width[1:])
+        sys.exit()
+        ax.axhline(*width[1:], color='C1')
 
 #        textstr = '\n'.join((
 #            r'$\mathrm{Position}=%i$' % (peak_pos,),
