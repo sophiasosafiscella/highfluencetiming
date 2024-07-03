@@ -304,29 +304,31 @@ def estimate_peak(window_data, windows, baseline, window_index, plot=False):
     #    peak_amp = np.max(new_y) - baseline
     peak_amp = np.max(window_data) - baseline
     peak_pos = new_x[np.argmax(new_y)]
-    peak_width = peak_widths(window_data, np.array([np.argmax(window_data)]), rel_height=0.5)[0][0]
+#    peak_width = peak_widths(window_data, np.array([np.argmax(window_data)]), rel_height=0.5)[0][0]
+    peak_width = peak_widths(new_y, [np.argmax(new_y)], rel_height=0.5)[0][0]
+
 
     if plot:
         sns.set_style("darkgrid")
         sns.set_context("paper", font_scale=1.4)
 
         fig, ax = plt.subplots()
-        ax.plot(x_data, window_data, c="636EFA", label="Original")  # c="#f29ad8"
-        ax.scatter(x_data, window_data, c="636EFA")  #  c="#f29ad8"
+        ax.plot(x_data, window_data, c="#636EFA", label="Original")  # c="#f29ad8"
+        ax.scatter(x_data, window_data, c="#636EFA")  #  c="#f29ad8"
         ax.plot(new_x, new_y, c="#EF553B", label="Fit")  # c="#e305ad",
 
         ax.axvline(x=peak_pos, ls="--", c='k', label="Peak position")
         ax.axvline(x=windows[1, 0], ls=":", c="grey")
         ax.axvline(x=windows[1, 1], ls=":", c="grey")
-        ax.fill_between(new_x, 0, peak_amp + baseline,
+        ax.fill_between(new_x, baseline, peak_amp,
                         where=(new_x < peak_pos + peak_width) &
                               (new_x > peak_pos - peak_width),
-                        color='#B6E880', alpha=0.3, label="width and amp")  # color="#f9dd9a",
+                        color='#B6E880', alpha=0.3, label="Width and Amplitude")  # color="#f9dd9a",
 
         textstr = '\n'.join((
-            r'$\mathrm{pos}=%i$' % (peak_pos,),
-            r'$\mathrm{amp}=%.4f$' % (peak_amp,),
-            r'$\mathrm{width}=%.4f$' % (peak_width,)))
+            r'$\mathrm{Position}=%i$' % (peak_pos,),
+            r'$\mathrm{Amplitude}=%.4f$' % (peak_amp,),
+            r'$\mathrm{Width}=%.4f$' % (peak_width,)))
         #            ,r'baseline =%.4f' % (baseline,)))
 
         # these are matplotlib.patch.Patch properties
