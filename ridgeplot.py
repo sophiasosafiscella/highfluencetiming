@@ -11,6 +11,7 @@ sns.set_theme(style="white", rc={"axes.facecolor": (0, 0, 0, 0)})
 # Obtain the data
 dir: str = "./results/pol_calibrated/820_band_meerguard_pazr/0.0_sigma/"
 features = pd.read_pickle(dir + "features.pkl")
+features = features.rename({'Pos': 'Phase Bins', 'b': 'Y'}, axis='columns')
 
 bin_edges = np.histogram_bin_edges(features['Amp'], bins=12)
 features.loc[:, 'Amplitude'] = pd.cut(x=features['Amp'].to_numpy(), bins=bin_edges, precision=1)
@@ -18,11 +19,11 @@ features.dropna(axis=0, how='any', subset='Amplitude', inplace=True)   # Drop bi
 features.sort_values('Amplitude', ascending=False, inplace=True)
 features.loc[:, 'Amplitude'] = features.astype({'Amplitude':'str'})
 
-features = features[features['Pos'] > 240]
-features = features[features['Pos'] < 265]
+features = features[features['Phase Bins'] > 240]
+features = features[features['Phase Bins'] < 265]
 
 # Calculate the mean position for each interval
-means = [np.mean(features[features['Amplitude'] == interval]['Pos'].to_numpy()) for interval in features['Amplitude'].unique()]
+means = [np.median(features[features['Amplitude'] == interval]['Phase Bins'].to_numpy()) for interval in features['Amplitude'].unique()]
 print(features['Amplitude'].unique())
 print(means)
 
@@ -31,7 +32,7 @@ features = features[features['Amplitude'] != '(-0.012, -0.0011]']
 features = features[features['Amplitude'] != '(-0.0011, 0.0099]']
 #features = features[features['Amplitude'] != '(0.11, 0.119]']
 
-df = features[['Pos', 'Amplitude']]
+df = features[['Phase Bins', 'Amplitude']]
 
 
 # Initialize the FacetGrid object
@@ -58,11 +59,11 @@ pal2 = [pal[i] for i in [9, 8, 7, 5, 6, 4, 3, 2, 0, 1]]
 grid = sns.FacetGrid(df, row="Amplitude", hue="Amplitude", aspect=15, height=.5, palette=pal)
 
 # Draw the densities in a few steps
-grid.map(sns.kdeplot, "Pos",
+grid.map(sns.kdeplot, "Phase Bins",
          bw_adjust=.5, clip_on=False,
          hue=features['Amplitude'], palette=pal2,
          fill=True, alpha=1, linewidth=1.5)
-grid.map(sns.kdeplot, "Pos", clip_on=False, color="w", lw=2, bw_adjust=.5)
+grid.map(sns.kdeplot, "Phase Bins", clip_on=False, color="w", lw=2, bw_adjust=.5)
 
 # passing color=None to refline() uses the hue mapping
 #grid.refline(y=0, linewidth=2, linestyle="-", color=None, clip_on=False)
@@ -86,7 +87,7 @@ def label(x, color, label):
             ha="left", va="center", transform=ax.transAxes)
 
 
-grid.map(label, "Pos")
+grid.map(label, "Phase Bins")
 
 # Set the subplots to overlap
 grid.figure.subplots_adjust(hspace=-.45)
