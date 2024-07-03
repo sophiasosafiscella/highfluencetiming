@@ -16,8 +16,7 @@ import sys
 from lmfit import Model, Parameters
 
 from scipy.integrate import trapezoid
-from scipy.signal import peak_widths
-from scipy.signal import find_peaks
+from scipy.signal import peak_widths, find_peaks
 
 from tqdm import tqdm
 
@@ -307,8 +306,8 @@ def estimate_peak(window_data, windows, baseline, window_index, plot=False):
     peak_amp = np.max(window_data) - baseline
     peak_pos = new_x[np.argmax(new_y)]
 #    peak_width = peak_widths(window_data, np.array([np.argmax(window_data)]), rel_height=0.5)[0][0]
-#    peak_width = peak_widths(new_y, [np.argmax(new_y)], rel_height=0.5)[0][0]
-    peak_width = 2 * result.params["stddev"].value * np.sqrt(2 * np.log(2))
+    peak_width = peak_widths(new_y, find_peaks(new_x)[0], rel_height=0.5)[0][0]
+#    peak_width = 2 * result.params["stddev"].value * np.sqrt(2 * np.log(2))
 
     if plot:
         sns.set_style("darkgrid")
@@ -325,7 +324,7 @@ def estimate_peak(window_data, windows, baseline, window_index, plot=False):
         ax.fill_between(new_x, 0, peak_amp,
                         where=(new_x < peak_pos + peak_width) &
                               (new_x > peak_pos - peak_width),
-                        color='#B6E880', alpha=0.3, label="Width and Amplitude")  # color="#f9dd9a",
+                        color='#B6E880', alpha=0.3, label="Width")  # color="#f9dd9a",
 
 #        textstr = '\n'.join((
 #            r'$\mathrm{Position}=%i$' % (peak_pos,),
