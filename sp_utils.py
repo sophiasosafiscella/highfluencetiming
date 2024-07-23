@@ -14,6 +14,7 @@ import os
 import sys
 
 from lmfit import Model, Parameters
+#from scipy.optimize import curve_fit
 
 from scipy.integrate import trapezoid
 from scipy.signal import peak_widths, find_peaks
@@ -272,7 +273,12 @@ def find_windows(template_file: str,  # name of the template fits_file
 
 
 def gaussian(x, amplitude, mean, stddev):
-    return amplitude * np.exp(-((x - mean) / 4 / stddev) ** 2) # + baseline
+    return amplitude * np.exp(-((x - mean)**2 / (2 * stddev**2))) # + baseline
+
+
+#Define the Gaussian function
+def gauss(x, a, x0, sigma):
+    return a*np.exp(-(x-x0)**2/(2*sigma**2))
 
 
 def estimate_peak(window_data, windows, baseline, window_index, plot=False):
@@ -281,56 +287,62 @@ def estimate_peak(window_data, windows, baseline, window_index, plot=False):
     window_data -= baseline
 
     # Find the index of the peak of the (observed) pulse
-    peak_index = np.argmax(window_data) + windows[1, 0]  # Index (in the window) of the biggest peak in the pulse window
+    peak_index = np.argmax(window_data) # + windows[1, 0]  # Index (in the window) of the biggest peak in the pulse window
 
     # Create bins in the pulse window
-    x_data = np.arange(len(window_data)) + windows[1, 0]
+    x_data = np.arange(len(window_data)) # + windows[1, 0]
 
-    gmodel = Model(gaussian)
+    gmodel = Model(gauss)
     params = Parameters()
-    params.add("mean", value=peak_index)
-    params.add("amplitude", value=np.max(window_data), min=0.0)
+    params.add("x0", value=peak_index, min=0.0, max=x_data[-4])
+    params.add("a", value=0.01, min=0.0)
     #    print("peak index = " + str(peak_index))
     #    print("max in window = " + str(np.max(window_data)))
-    params.add("stddev", value=1.0, min=0.0)
+    params.add("sigma", value=1.0, min=0.0, max=x_data[-1])
 #    params.add("baseline", value=baseline)
 #    params['baseline'].vary = False
     result = gmodel.fit(window_data, params, x=x_data)
 
+    factor: int = 2
+    new_x = np.arange(x_data[0], x_data[-1], 1.0/factor)
+    new_y = gauss(new_x, a=result.params["a"].value,
+                     x0=result.params["x0"].value,
+                     sigma=result.params["sigma"].value)
 
-    new_x = np.arange(x_data[0], x_data[-1], 0.5)
-    new_y = gaussian(new_x, amplitude=result.params["amplitude"].value,
-                     mean=result.params["mean"].value,
-                     stddev=result.params["stddev"].value)
+    print(result.params["a"].value, result.params["x0"].value, result.params["sigma"].value)
+
     #    peak_amp = np.max(new_y) - baseline
     peak_amp = np.max(window_data) - baseline
-    peak_pos = new_x[np.argmax(new_y)]
+#    peak_pos = new_x[np.argmax(new_y)]
 #    peak_width = peak_widths(window_data, np.array([np.argmax(window_data)]), rel_height=0.5)[0][0]
 #    peak_idx = [np.argmax(new_y)]
 
-    peaks, _ = find_peaks(new_y)
-    results_half = peak_widths(new_y, peaks, rel_height=0.5)
-    peak_width = results_half[0][0]
-#    peak_width = 2 * result.params["stddev"].value * np.sqrt(2 * np.log(2))
+    gauss_peak_idx, _ = find_peaks(new_y)
+    peak_pos = new_x[gauss_peak_idx] + windows[1, 0]
+    results_FWHM = peak_widths(new_y, gauss_peak_idx, rel_height=0.5)
+    peak_width = results_FWHM[0]
 
-    if plot:
+    if len(gauss_peak_idx) < 1:
+        plt.close()
         sns.set_style("darkgrid")
         sns.set_context("paper", font_scale=1.4)
 
-        plt.plot(new_x[peaks], new_y[peaks], "x")
-#        plt.plot(x_data, window_data, c="#636EFA", label="Original")  # c="#f29ad8"
-#        plt.scatter(x_data, window_data, c="#636EFA")  #  c="#f29ad8"
-        plt.plot(new_x, new_y, c="#EF553B", label="Fit")  # c="#e305ad",
+##        plt.plot(new_x[gauss_peak_idx] + windows[1, 0] , new_y[gauss_peak_idx], "x")
+        plt.plot(x_data + windows[1, 0], window_data, c="#636EFA", label="Original")  # c="#f29ad8"
+        plt.scatter(x_data + windows[1, 0], window_data, c="#636EFA")  #  c="#f29ad8"
+        plt.plot(new_x + windows[1, 0], new_y, c="#EF553B", label="Fit")  # c="#e305ad",
 
-#        plt.vline(x=peak_pos, ls="--", c='k', label="Peak position")
-        plt.axvline(x=windows[1, 0], ls=":", c="grey")
-        plt.axvline(x=windows[1, 1], ls=":", c="grey")
+##        plt.axvline(x=peak_pos, ls="--", c='k', label="Peak position")
+#        plt.axvline(x=windows[1, 0], ls=":", c="grey")
+#        plt.axvline(x=windows[1, 1], ls=":", c="grey")
 #        ax.fill_between(new_x, 0, peak_amp,
 #                        where=(new_x < peak_pos + peak_width/20) &
 #                              (new_x > peak_pos - peak_width/20),
 #                        color='#B6E880', alpha=0.3, label="Width")  # color="#f9dd9a",
 
-        plt.hlines(*results_half[1:], color="C2")
+#        plt.axvline(x=[*results_FWHM[2]][0], c='red')
+#        plt.axvline(x=[*results_FWHM[3]][0], c='red')
+##        plt.hlines([*results_FWHM[1]][0], [*results_FWHM[2]][0]/factor + windows[1, 0], [*results_FWHM[3]][0]/factor + windows[1, 0], color="C2", lw=2, label="FWHM")
 
 #        textstr = '\n'.join((
 #            r'$\mathrm{Position}=%i$' % (peak_pos,),
@@ -355,6 +367,8 @@ def estimate_peak(window_data, windows, baseline, window_index, plot=False):
         plt.savefig("./figures/fits/pulse_fit_" + str(window_index) + ".png")
         plt.show()
         plt.close()
+
+    print(peak_amp, peak_pos, peak_width)
 
     return peak_amp, peak_pos, peak_width
 
