@@ -277,8 +277,8 @@ def gaussian(x, amplitude, mean, stddev):
 
 
 #Define the Gaussian function
-def gauss(x, a, x0, sigma):
-    return a*np.exp(-(x-x0)**2/(2*sigma**2))
+def gauss(x, a, x0, sigma, H):
+    return H + a*np.exp(-(x-x0)**2/(2*sigma**2))
 
 
 def estimate_peak(window_data, windows, baseline, window_index, plot=False):
@@ -294,22 +294,24 @@ def estimate_peak(window_data, windows, baseline, window_index, plot=False):
 
     gmodel = Model(gauss)
     params = Parameters()
-    params.add("x0", value=peak_index, min=0.0, max=x_data[-4])
-    params.add("a", value=0.01, min=0.0)
+    params.add("x0", value=peak_index, min=x_data[4], max=x_data[-4])
+    params.add("a", value=0.01, min=0.0001)
     #    print("peak index = " + str(peak_index))
     #    print("max in window = " + str(np.max(window_data)))
-    params.add("sigma", value=1.0, min=0.0, max=x_data[-1])
+    params.add("sigma", value=1.0, min=0.01, max=x_data[-1])
+    params.add("H", value=0.0)
 #    params.add("baseline", value=baseline)
 #    params['baseline'].vary = False
     result = gmodel.fit(window_data, params, x=x_data)
 
-    factor: int = 2
+    factor: int = 1
     new_x = np.arange(x_data[0], x_data[-1], 1.0/factor)
     new_y = gauss(new_x, a=result.params["a"].value,
                      x0=result.params["x0"].value,
-                     sigma=result.params["sigma"].value)
+                     sigma=result.params["sigma"].value,
+                     H=result.params["H"].value)
 
-    print(result.params["a"].value, result.params["x0"].value, result.params["sigma"].value)
+#    print(result.params["a"].value, result.params["x0"].value, result.params["sigma"].value, result.params["H"].value)
 
     #    peak_amp = np.max(new_y) - baseline
     peak_amp = np.max(window_data) - baseline
@@ -323,16 +325,21 @@ def estimate_peak(window_data, windows, baseline, window_index, plot=False):
     peak_width = results_FWHM[0]
 
     if len(gauss_peak_idx) < 1:
+        return np.nan, np.nan, 0.0
+
+    if plot:
+
         plt.close()
         sns.set_style("darkgrid")
         sns.set_context("paper", font_scale=1.4)
 
-##        plt.plot(new_x[gauss_peak_idx] + windows[1, 0] , new_y[gauss_peak_idx], "x")
+        plt.plot(new_x[gauss_peak_idx] + windows[1, 0] , new_y[gauss_peak_idx], "x")
         plt.plot(x_data + windows[1, 0], window_data, c="#636EFA", label="Original")  # c="#f29ad8"
         plt.scatter(x_data + windows[1, 0], window_data, c="#636EFA")  #  c="#f29ad8"
         plt.plot(new_x + windows[1, 0], new_y, c="#EF553B", label="Fit")  # c="#e305ad",
 
-##        plt.axvline(x=peak_pos, ls="--", c='k', label="Peak position")
+
+        plt.axvline(x=peak_pos, ls="--", c='k', label="Peak position")
 #        plt.axvline(x=windows[1, 0], ls=":", c="grey")
 #        plt.axvline(x=windows[1, 1], ls=":", c="grey")
 #        ax.fill_between(new_x, 0, peak_amp,
@@ -342,7 +349,7 @@ def estimate_peak(window_data, windows, baseline, window_index, plot=False):
 
 #        plt.axvline(x=[*results_FWHM[2]][0], c='red')
 #        plt.axvline(x=[*results_FWHM[3]][0], c='red')
-##        plt.hlines([*results_FWHM[1]][0], [*results_FWHM[2]][0]/factor + windows[1, 0], [*results_FWHM[3]][0]/factor + windows[1, 0], color="C2", lw=2, label="FWHM")
+        plt.hlines([*results_FWHM[1]][0], [*results_FWHM[2]][0]/factor + windows[1, 0], [*results_FWHM[3]][0]/factor + windows[1, 0], color="C2", lw=2, label="FWHM")
 
 #        textstr = '\n'.join((
 #            r'$\mathrm{Position}=%i$' % (peak_pos,),
@@ -368,7 +375,7 @@ def estimate_peak(window_data, windows, baseline, window_index, plot=False):
         plt.show()
         plt.close()
 
-    print(peak_amp, peak_pos, peak_width)
+#    print(peak_amp, peak_pos, peak_width)
 
     return peak_amp, peak_pos, peak_width
 
@@ -422,5 +429,5 @@ def get_params(data_file, windows, results_dir, plot=False):
     #    org_features = np.vstack((lse_pos, lse_width, lse_peak_amp, lse_energy)).T
     #    features = StandardScaler().fit_transform(org_features)
 
-    # Drop the rows where the width is 0.0
-    return org_features.loc[~((org_features['Width'] == 0.0))]
+    # Drop the rows where the width is 0.0 or where any of the features is NaN
+    return org_features.loc[~((org_features['Width'] == 0.0))].dropna(how='any', ignore_index=True)
