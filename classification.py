@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from matplotlib.ticker import MaxNLocator
 import os
 import pypulse as pyp
+from math import floor
 
 from IPython.display import display
 
@@ -201,7 +202,7 @@ def clean_artifacts(cluster_average_pulse, clean_window, delta: int = 20):
 
 
 def time_clusters(cluster_indexes, results_dir, clustered_data, unnormalized_data, bin_to_musec, first_file,
-                  plot_clusters=True):
+                  split_data: bool = True, plot_clusters=True):
 
     clusters_toas = pd.DataFrame(columns=['TOA', 'sigma_TOA', '1/sigma^2'], index=list(cluster_indexes))
 
@@ -216,19 +217,35 @@ def time_clusters(cluster_indexes, results_dir, clustered_data, unnormalized_dat
         # Isolate the single pulses in the cluster
         cluster_sp_times = clustered_data[clustered_data['Cluster'] == str(cluster_index)].index.to_numpy()
         cluster_pulses = unnormalized_data.loc[cluster_sp_times]
+        n_single_pulses = len(cluster_pulses)
         print(f"Cluster {cluster_index} has single pulses = {len(cluster_sp_times)}")
 #        print(np.any(np.isnan(cluster_pulses.to_numpy())))
 
         # Calculate the cluster average pulse
-        cluster_average_pulse = np.average(cluster_pulses.to_numpy(), axis=0)
+        if split_data:
+            cluster_average_pulse_for_template = np.average(cluster_pulses[:int(floor(n_single_pulses/2))].to_numpy(), axis=0)
+            cluster_average_pulse_to_fit = np.average(cluster_pulses[int(floor(n_single_pulses/2)):].to_numpy(), axis=0)
 
-        # Fix for weird artifacts
-#        cluster_average_pulse = clean_artifacts(cluster_average_pulse, [224, 227])
-        cluster_average_pulse = clean_artifacts(cluster_average_pulse, [222, 238])
-        cluster_average_pulse = clean_artifacts(cluster_average_pulse, [275, 295])
+            # Fix for weird artifacts
+            cluster_average_pulse_for_template = clean_artifacts(cluster_average_pulse_for_template, [222, 238])
+            cluster_average_pulse = clean_artifacts(cluster_average_pulse_for_template, [275, 295])
 
-        # Copy to an Archive object
-        ar.data = np.copy(cluster_average_pulse)
+            cluster_average_pulse_to_fit = clean_artifacts(cluster_average_pulse_to_fit, [222, 238])
+            cluster_average_pulse_to_fit = clean_artifacts(cluster_average_pulse_to_fit, [275, 295])
+
+            # Copy to an Archive object
+            ar.data = np.copy(cluster_average_pulse_to_fit)
+
+        else:
+            cluster_average_pulse = np.average(cluster_pulses.to_numpy(), axis=0)
+
+            # Fix for weird artifacts
+    #        cluster_average_pulse = clean_artifacts(cluster_average_pulse, [224, 227])
+            cluster_average_pulse = clean_artifacts(cluster_average_pulse, [222, 238])
+            cluster_average_pulse = clean_artifacts(cluster_average_pulse, [275, 295])
+
+            # Copy to an Archive object
+            ar.data = np.copy(cluster_average_pulse)
 
         # Create a template for this cluster by smoothing the cluster average pulse
         cluster_avg_sp = pyp.SinglePulse(cluster_average_pulse, opw=np.arange(0, 100))
