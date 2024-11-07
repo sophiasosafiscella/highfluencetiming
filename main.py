@@ -26,10 +26,10 @@ if __name__ == '__main__':
     #   0) Get the fits_file names
     band: str = "820_band"
     classifier: str = "Kmeans"        # Options: "Kmeans", "OPTICS", "MeanShift", or "AffinityPropagation"
-    results_dir: str = "./results/pol_calibrated/" + band + "_pazrL/"  # Directory with the results
+    results_dir: str = "./results/pol_calibrated/" + band + "_meerguard_pazr/"  # Directory with the results
 
 #    pulses_dir: str = "./data/pol_calibrated/" + band + "/"
-    pulses_dir: str = "/minish/svs00006/J2145_observations/" + band + "/folded/pol_calibrated/pazrL/"
+    pulses_dir: str = "/minish/svs00006/J2145_observations/" + band + "/folded/pol_calibrated/"
 
     if band == "L_band":
         files = sorted(glob.glob(pulses_dir + "GUPPI*calibP"))[:1714]  # Files containing the observations
@@ -41,8 +41,8 @@ if __name__ == '__main__':
     plot_clusters: bool = True  # Plot the single pulses in the cluster_sp_times
     time_sp: bool = False
 
-    meerguard_ok: bool = True      # Clean using MeerGuard?
-    clfd_ok: bool = True           # Clean using clfd?
+    meerguard_ok: bool = False     # Clean using MeerGuard?
+    clfd_ok: bool = False          # Clean using clfd?
     mask_RFI_ok: bool = False      # Clean using mask_RFI?
     zap_minmax_ok: bool = False    # Clean using zap_minmax?
     chisq_filter_ok: bool = False  # Clean using chisq_filter?
@@ -187,7 +187,7 @@ if __name__ == '__main__':
         #   8) Create the features for each single pulse
         if len(glob.glob(features_file)) == 0:
             print("Features not found. I'll create them...")
-            org_features = sp_utils.get_params(merged_normalized_file, windows_data, results_dir=results_dir_2, plot=False)
+            org_features = sp_utils.get_params(merged_normalized_file, windows_data, results_dir=results_dir_2, plot=True)
             org_features.to_pickle(features_file)
         else:
             org_features = pd.read_pickle(features_file)
