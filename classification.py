@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from matplotlib.ticker import MaxNLocator
 import os
 import pypulse as pyp
+import sys 
 
 from IPython.display import display
 
@@ -211,10 +212,13 @@ def time_clusters(cluster_indexes, results_dir, clustered_data, unnormalized_dat
 
     for cluster_index in cluster_indexes:
 
-#        print(f"Timing cluster {cluster_index}")
+        print(f"Timing cluster {cluster_index}")
 
         # Isolate the single pulses in the cluster
         cluster_sp_times = clustered_data[clustered_data['Cluster'] == str(cluster_index)].index.to_numpy()
+        print(cluster_sp_times)
+        display(unnormalized_data)
+
         cluster_pulses = unnormalized_data.loc[cluster_sp_times]
         print(f"Cluster {cluster_index} has single pulses = {len(cluster_sp_times)}")
 #        print(np.any(np.isnan(cluster_pulses.to_numpy())))
