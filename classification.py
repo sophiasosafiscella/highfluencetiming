@@ -223,8 +223,8 @@ def time_clusters(cluster_indexes, results_dir, clustered_data, unnormalized_dat
 
         if split_data:
             # Calculate the cluster average pulse
-            cluster_average_pulse_for_template = np.average(cluster_pulses[:int(floor(n_single_pulses/2))].to_numpy(), axis=0)
-            cluster_average_pulse_to_fit = np.average(cluster_pulses[int(floor(n_single_pulses/2)):].to_numpy(), axis=0)
+            cluster_average_pulse_for_template = np.average(cluster_pulses.to_numpy()[:int(floor(n_single_pulses/2)), :], axis=0)
+            cluster_average_pulse_to_fit = np.average(cluster_pulses.to_numpy()[int(floor(n_single_pulses/2)):, :], axis=0)
 
             # Fix for weird artifacts
             cluster_average_pulse_for_template = clean_artifacts(cluster_average_pulse_for_template, [222, 238])
