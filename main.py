@@ -26,7 +26,7 @@ if __name__ == '__main__':
     #   0) Get the fits_file names
     band: str = "820_band"
     classifier: str = "Kmeans"        # Options: "Kmeans", "OPTICS", "MeanShift", or "AffinityPropagation"
-    results_dir: str = "./results/pol_calibrated/" + band + "_meerguard_pazr/"  # Directory with the results
+    results_dir: str = "./results/pol_calibrated/" + band + "_meerguard_pazr_split_data/"  # Directory with the results
 
 #    pulses_dir: str = "./data/pol_calibrated/" + band + "/"
     pulses_dir: str = "/minish/svs00006/J2145_observations/" + band + "/folded/pol_calibrated/"
