@@ -221,8 +221,8 @@ def time_clusters(cluster_indexes, results_dir, clustered_data, unnormalized_dat
         print(f"Cluster {cluster_index} has single pulses = {len(cluster_sp_times)}")
 #        print(np.any(np.isnan(cluster_pulses.to_numpy())))
 
-        # Calculate the cluster average pulse
         if split_data:
+            # Calculate the cluster average pulse
             cluster_average_pulse_for_template = np.average(cluster_pulses[:int(floor(n_single_pulses/2))].to_numpy(), axis=0)
             cluster_average_pulse_to_fit = np.average(cluster_pulses[int(floor(n_single_pulses/2)):].to_numpy(), axis=0)
 
@@ -237,6 +237,7 @@ def time_clusters(cluster_indexes, results_dir, clustered_data, unnormalized_dat
             ar.data = np.copy(cluster_average_pulse_to_fit)
 
         else:
+            # Calculate the cluster average pulse
             cluster_average_pulse = np.average(cluster_pulses.to_numpy(), axis=0)
 
             # Fix for weird artifacts
